@@ -1,5 +1,5 @@
 <!--
-    Ankia-Theme v1.6
+    Ankia-Theme v1.7
     https://ankia.top/
 
     Licensed Apache-2.0 © 东东
@@ -7,34 +7,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <% 
-       const bloggerName =  subRoot.note.getLabelValue("bloggerName") ;
-       const siteName =  subRoot.note.getLabelValue("siteName") ;
-       const siteDescription =  note.getLabelValue("summary") ;
-       const bloggerAvatar  = `api/images/${subRoot.note.getRelation("bloggerAvatar").value}/博主头像`
-       var count = 0;
-       
-       function getDaysAgo(dateStr) {
-         const date = new Date(dateStr);
-         const currentDate = new Date();
-         const delta = currentDate - date;
-         const days = Math.floor(delta / (1000 * 60 * 60 * 24));
-   
-         if (days === 0) {return "今天";
-         } else if (days === 1) {return "昨天";
-         } else if (days === 2) {return "前天";
-         } else if (days < 7) {return `${days}天前`;
-         } else if (days < 30) {const weeks = Math.floor(days / 7);return `${weeks}周前`;
-         } else if (days <365) {const months = Math.floor(days /30);return `${months}个月前`;
-         } else{const years = Math.floor(days/365);return `${years}年前`;}
-       }
-       %>
+        const bloggerName =  subRoot.note.getLabelValue("bloggerName") ;
+        const siteName =  subRoot.note.getLabelValue("siteName") ;
+        const siteDescription =  note.getLabelValue("summary") ;
+        const bloggerAvatar  = `api/images/${subRoot.note.getRelation("bloggerAvatar").value}/博主头像`
+        var count = 0;
+        
+        function getDaysAgo(dateStr) {
+          const date = new Date(dateStr);
+          const currentDate = new Date();
+          const delta = currentDate - date;
+          const days = Math.floor(delta / (1000 * 60 * 60 * 24));
+    
+          if (days === 0) {return "今天";
+          } else if (days === 1) {return "昨天";
+          } else if (days === 2) {return "前天";
+          } else if (days < 7) {return `${days}天前`;
+          } else if (days < 30) {const weeks = Math.floor(days / 7);return `${weeks}周前`;
+          } else if (days <365) {const months = Math.floor(days /30);return `${months}个月前`;
+          } else{const years = Math.floor(days/365);return `${years}年前`;}
+        }
+        %>
 
 <head>
   <meta charset="UTF-8">
   <meta name="referrer" content="no-referrer">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <title><%= `${note.title} - ${siteName}` %></title>
+  <title><%= note.hasLabel("timeLineRoot") ? `${siteName}` : `${note.title} - ${siteName}` %></title>
   <meta name="keywords" content="<%= subRoot.note.getLabelValue("siteKeywords") %>">
   <meta name="author" content="<%= bloggerName%>">
   <meta name="copyright" content="<%= bloggerName%>">
@@ -63,28 +62,28 @@
 </head>
 
 <%
-   const headingRe = /(<h[1-6]\s*(?:[^>]+\s*)*>)(.+?)(<\/h[1-6]>)/g;
-   const headingMatches = [...content.matchAll(headingRe)];
-   const slugify = (text) => text.replace(/\s/g, "-");
-   content = content.replaceAll(headingRe, (...match) => {
-       const regex = /(<([^>]+)>)/ig;
-       const tocTextContent = slugify(match[2]).replace(regex, '')
-       match[0] = match[0].replace(match[3], `<a id="${tocTextContent}" class="toc-anchor" name="${tocTextContent}" href="#${tocTextContent}">※</a>${match[3]}`);
-       return match[0];
-   }).replaceAll(/class="language-text-x-(\w+)"/g , (...match) => {
-       match[0] = match[0].replace("-text-x", "");
-       return match[0];
-   }).replaceAll( /class="language-text-(\w+)"/g , (...match) => {
-       match[0] = match[0].replace("-text", "");
-       return match[0];
-   }).replaceAll( /class="language-application-x-(\w+)"/g , (...match) => {
-       match[0] = match[0].replace("-application-x", "");
-       return match[0];
-   }).replaceAll( /class="language-application-(\w+)"/g , (...match) => {
-       match[0] = match[0].replace("-application", "");
-       return match[0];
-   }).replaceAll("language-application-javascript-env-backend" , "language-javascript").replaceAll("language-application-javascript-env-frontend" , "language-javascript");
-   %>
+    const headingRe = /(<h[1-6]\s*(?:[^>]+\s*)*>)(.+?)(<\/h[1-6]>)/g;
+    const headingMatches = [...content.matchAll(headingRe)];
+    const slugify = (text) => text.replace(/\s/g, " ");
+    content = content.replaceAll(headingRe, (...match) => {
+        const regex = /(<([^>]+)>)/ig;
+        const tocTextContent = slugify(match[2]).replace(regex, '')
+        match[0] = match[0].replace(match[3], `<a id="${tocTextContent}" class="toc-anchor" name="${tocTextContent}" href="#${tocTextContent}">※</a>${match[3]}`);
+        return match[0];
+    }).replaceAll(/class="language-text-x-(\w+)"/g , (...match) => {
+        match[0] = match[0].replace("-text-x", "");
+        return match[0];
+    }).replaceAll( /class="language-text-(\w+)"/g , (...match) => {
+        match[0] = match[0].replace("-text", "");
+        return match[0];
+    }).replaceAll( /class="language-application-x-(\w+)"/g , (...match) => {
+        match[0] = match[0].replace("-application-x", "");
+        return match[0];
+    }).replaceAll( /class="language-application-(\w+)"/g , (...match) => {
+        match[0] = match[0].replace("-application", "");
+        return match[0];
+    }).replaceAll("language-application-javascript-env-backend" , "language-javascript").replaceAll("language-application-javascript-env-frontend" , "language-javascript");
+    %>
 
 <body data-note-id="<%= note.noteId %>" data-ancestor-note-id="<%= subRoot.note.noteId %>">
   <div id="mobileMenuContainer"></div>
@@ -93,19 +92,21 @@
   </div>
   <div id="navigationBar" class="scroll-hide">
     <div id="siteTitle">
-      <img src="api/images/<%= subRoot.note.getRelation("shareFavicon").value %>/logo.svg" alt="Logo" />
-      <a href="./Index" title="返回主页"><%= siteName %></a>
+      <!-- 屏蔽icon
+       <img src="api/images/<%= subRoot.note.getRelation("shareFavicon").value %>/logo.svg" alt="Logo" />
+         -->
+      <a href="./" title="返回主页"><%= siteName %></a>
     </div>
     <div id="navigationItems">
       <div class="navigationItemsStyle">
-        <a href="./Index" title="首页" class="menuLinkStyle">首页</a>
+        <a href="./" title="首页" class="menuLinkStyle">首页</a>
       </div>
       <div class="navigationItemsStyle">
         <a id="category" title="分类" class="menuLinkStyle">分类<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="
-       width: 10px;
-       height: 10px;
-       margin-left: 2px;
-   ">
+        width: 10px;
+        height: 10px;
+        margin-left: 2px;
+    ">
             <path d="M3 8L12 17L21 8"></path>
           </svg></a>
         <div id="categoryDropDown" class="dropDownStyle">
@@ -167,8 +168,8 @@
       <div id="contentHeader">
         <div class="blogMetadate">
           <% const tags = note.getLabelValues("tags");
-                         if (tags!=null ||tags!=undefined ||tags!=""){
-                             tags.forEach((tag)=>{ %>
+                          if (tags!=null ||tags!=undefined ||tags!=""){
+                              tags.forEach((tag)=>{ %>
           <a href="./tag_<%= tag %>">
             <div class="blogMetadateItems categoryBadge shakeStyle">
               <svg xmlns="http://www.w3.org/2000/svg" width="0.8rem" height="0.8rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag">
@@ -220,8 +221,8 @@
       <% if (note.getLabelValue("categoryName") === "友链") { %>
       <div class="fLinkContainer">
         <% const fLnksDate = content.replace(/<\/?pre>/g, '').replace(/[\n\s]/g, "");const fLinks = JSON.parse(fLnksDate); 
-                   
-               for (let key in fLinks) {%>
+                    
+                for (let key in fLinks) {%>
 
         <a class="fLink cf-friends-link" href="<%= fLinks[key]['link'] %>" target="_blank" rel="noopener">
           <img class="cf-friends-avatar" src="<%= fLinks[key]['img'] %>" alt="<%= fLinks[key]['title'] %>">
@@ -232,18 +233,22 @@
       </div>
       <div>
         <hr>
+        <blockquote>
+          <p>声明：<%= note.getLabelValue("notes") %>
+          </p>
+        </blockquote>
         <p>我的友链：</p>
         <pre><code class="language-json">"title": "<%= note.getLabelValue("myTitle") %>",
- "link": "<%= note.getLabelValue("myLink") %>",
- "img": "<%= note.getLabelValue("myImg") %>",
- "des": "<%= note.getLabelValue("myDes") %>"</code></pre>
+  "link": "<%= note.getLabelValue("myLink") %>",
+  "img": "<%= note.getLabelValue("myImg") %>",
+  "des": "<%= note.getLabelValue("myDes") %>"</code></pre>
         <p>加入本站友链的格式：</p>
         <pre><code class="language-json">{
-   "title": "博客名称",  //建议8个中文字符以内
-   "link": "博客链接",
-   "img": "站长头像",
-   "des": "博客描述"
-   }</code></pre>
+    "title": "博客名称",  //建议8个中文字符以内
+    "link": "博客链接",
+    "img": "站长头像",
+    "des": "博客描述"
+    }</code></pre>
       </div>
 
       <% } else if (note.getLabelValue("categoryName") === "朋友圈")  {%>
@@ -259,15 +264,71 @@
         }
       </script>
       <script type="text/javascript" src="https://npm.elemecdn.com/fcircle-theme-yyyz@1.0.13/dist/fcircle.min.js"></script>
-      <% } else{%>
+      <% } else if (note.getLabelValue("categoryName") === "现在")  {%>
+        <div id="content" class="type-<%= note.type %><% if (note.type === 'text') { %> ck-content<% } %>">
+          <%- content %>
+        </div>
+      <%- include('now') %>
+      <% } else if (note.getLabelValue("categoryName") === "归档")  {%>
+      <% const groupedNotes = Object.fromEntries(
+                 Object.entries(
+                   subRoot.note.getVisibleChildNotes()[5].getVisibleChildNotes().reduce((groupedNotes, note) => {
+                     const year = note.getLabelValue('date').slice(0, 4);
+                     if (!groupedNotes[year]) {
+                       groupedNotes[year] = [];
+                     }
+                     const index = groupedNotes[year].findIndex(n => n.date < note.getLabelValue('date'));
+                     if (index === -1) {
+                       groupedNotes[year].push({ date: note.getLabelValue('date'), title: note.title, link: note.noteId});
+                     } else {
+                       groupedNotes[year].splice(index, 0, { date: note.getLabelValue('date'), title: note.title, link: note.noteId});
+                     }
+                     return groupedNotes;
+                   }, {})
+                 )
+               )
+               const postYears = Object.keys(groupedNotes).sort((a, b) => b - a);
+                   
+             %>
+      <div id="content" class="timeline">
+        <% postYears.forEach(postYear =>{ %>
+        <div class="year">
+          <span class="yearLabel"><%=postYear%></span>
+          <% groupedNotes[postYear].forEach(item => { %>
+          <div class="post">
+            <div class="postDate"><%= item.date.slice(5,10) %></div>
+            <a class="postTitle" href="./<%= item.link %>"><%= item.title %></a>
+          </div>
+          <%})%>
 
+        </div>
+        <%})%>
+
+      </div>
+      <% } else if (note.getLabelValue("categoryName") === "标签云")  {%>
+      <% 
+             function getRandomColor() {
+                 const letters = '0123456789ABCDEF';
+                 let color = '#';
+                 for (let i = 0; i < 6; i++) {
+                     color += letters[Math.floor(Math.random() * 16)];
+                 }
+                 return color + 'A6';
+             }
+           %>
+      <div class="tagCloud">
+        <% subRoot.note.getVisibleChildNotes()[4].getVisibleChildNotes().forEach( tags => { %>
+        <a class="tagItem" style="background-color: <%= getRandomColor() %>;" href="./tag_<%= tags.title %>"><%=`${tags.title}(${tags.getVisibleChildNotes().length})`%></a>
+        <% }) %>
+      </div>
+      <% } else{%>
       <div id="content" class="type-<%= note.type %><% if (note.type === 'text') { %> ck-content<% } %>">
         <%- content %>
       </div>
       <% } %>
       <% if (subRoot.note.hasLabel("enableReward") && note.hasLabel("showReward")) { %>
       <div id="rewardContainer">
-        <button id="rewardBtn">❤️赞赏博主</button>
+        <button id="rewardBtn">🔋点我催更</button>
         <p style="font-size: smaller;" class="coffee">“您的支持是我持续分享的动力”</p>
         <div id="rewardImgContainer">
           <div class="singleImgContainer">
@@ -290,12 +351,12 @@
         <% if (!isEmpty) { %>
         <hr>
         <% } %>
-        <%
-                   for (const childNote of note.getVisibleChildNotes()) {
-                       const isExternalLink = childNote.hasLabel('shareExternalLink');
-                       const linkHref = isExternalLink ? childNote.getLabelValue('shareExternalLink') : `./${childNote.shareId}`;
-                       const target = isExternalLink ? `target="_blank" rel="noopener noreferrer"` : '';
-                   %>
+        <% const childNotes = note.getLabelValue("categoryName")==="首页" ? note.getVisibleChildNotes().slice(0,15) :  note.getVisibleChildNotes();
+                    for (const childNote of childNotes) {
+                        const isExternalLink = childNote.hasLabel('shareExternalLink');
+                        const linkHref = isExternalLink ? childNote.getLabelValue('shareExternalLink') : `./${childNote.shareId}`;
+                        const target = isExternalLink ? `target="_blank" rel="noopener noreferrer"` : '';
+                    %>
         <div id="blogItems" style="<%= childNote.hasLabel("blogPostTop") ? 'order: -1' : ''%>">
           <div class="blogItemsMainContain">
             <a style="color: black;" href="<%= linkHref %>" <%= target %> class="type-<%= childNote.type %>">
@@ -319,8 +380,8 @@
             </a>
             <div class="blogMetadate">
               <% const tags = childNote.getLabelValues("tags");
-                             if (tags!=null ||tags!=undefined ||tags!=""){
-                                 tags.forEach((tag)=>{ %>
+                              if (tags!=null ||tags!=undefined ||tags!=""){
+                                  tags.forEach((tag)=>{ %>
               <a href="./tag_<%= tag %>">
                 <div class="blogMetadateItems categoryBadge shakeStyle">
                   <svg xmlns="http://www.w3.org/2000/svg" width="0.8rem" height="0.8rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag">
@@ -341,8 +402,8 @@
               </a>
 
               <% if (childNote.hasLabel("date") && childNote.getLabelValue("date")!=null) { 
-                           const postDate = childNote.getLabelValue("date");
-                           %>
+                            const postDate = childNote.getLabelValue("date");
+                            %>
               <div class="blogMetadateItems">
                 <svg xmlns="http://www.w3.org/2000/svg" width="0.8rem" height="0.8rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-clock">
                   <circle cx="12" cy="12" r="10"></circle>
@@ -356,6 +417,13 @@
         </div>
         <% } %>
       </nav>
+      <% if(note.getLabelValue("categoryName")==="首页"){  %>
+      <div id="morePost">
+        <div> =&nbsp更多内容请前往&nbsp</div>
+        <a href="./timeline">归档</a>
+        <div> &nbsp= </div>
+      </div>
+      <% } %>
       <% } else if (isEmpty) { %>
       <p>施工中...</p>
       <% } %>
@@ -373,8 +441,8 @@
       <% } %>
       <div id="onTop" title="前往顶部">
         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up" style="
-      color: #ffffff;
-  ">
+       color: #ffffff;
+   ">
           <line x1="12" y1="19" x2="12" y2="5"></line>
           <polyline points="5 12 12 5 19 12"></polyline>
         </svg>
@@ -382,7 +450,7 @@
     </div>
     <div id="menuCard" class="cardContainerStyle" style="<%=subRoot.note.hasLabel("swapInfoCard")?"right:10px":"left:10px"%>">
       <% if(subRoot.note.hasLabel("enablePersonalDynamic")) {%>
-      <div id="recentActivityCard" class="bloggerInfoCardStyle">
+      <div id="recentActivityCard" class="bloggerInfoCardStyle" style="margin-left: auto;">
         <a href="./recentActivity" style="color:black" title="浏览全部说说">
           <div class="bloggerInfoTitleStyle">说说</div>
         </a>
@@ -390,16 +458,16 @@
         <% subRoot.note.getVisibleChildNotes()[0].getVisibleChildNotes().slice(0,5).forEach((childNote)=>{%>
         <div class="cardItemLinkStyle">
           <b style="font-size: 0.6em;
-       display: inline-block;
-       width: 3.5em;
-       text-align: center;"><%= getDaysAgo(childNote.getLabelValue("date").split("T")[0])%></b>
+        display: inline-block;
+        width: 3.5em;
+        text-align: center;"><%= getDaysAgo(childNote.getLabelValue("date").split("T")[0])%></b>
           <a href="./<%= childNote.shareId %>" title="<%=  childNote.title %>" class="menuLinkStyle"><%= childNote.title %></a>
         </div>
         <% }) %>
       </div>
       <% } %>
       <% if(subRoot.note.hasLabel("enableRecommendedReading")) {%>
-      <div id="recommendedReadingCard" class="bloggerInfoCardStyle">
+      <div id="recommendedReadingCard" class="bloggerInfoCardStyle" style="margin-left: auto;">
         <a href="./recommendedReading" style="color:black" title="浏览全部推荐">
           <div class="bloggerInfoTitleStyle">推荐阅读</div>
         </a>
@@ -416,29 +484,29 @@
     <% if (headingMatches.length > 1){ %>
     <!-- 目录插件 -->
     <%
-               const level = (m) => parseInt(m[1].replace(/[<h>]+/g, ""));
-   
-               const toc = [
-                   {
-                       level: level(headingMatches[0]),
-                       name: headingMatches[0][2],
-                       children: []
-                   }
-               ];
-               const last = (arr = toc) => arr[arr.length - 1];
-               const makeEntry = (m) => ({level: level(m), name: m[2], children: []});
-               const getLevelArr = (lvl, arr = toc) => {
-                   if (arr[0].level === lvl) return arr;
-                   const top = last(arr);
-                   return top.children.length ? getLevelArr(lvl, top.children) : top.children;
-               };
-   
-   
-               for (let m = 1; m < headingMatches.length; m++) {
-                   const target = getLevelArr(level(headingMatches[m]));
-                   target.push(makeEntry(headingMatches[m]));
-               }
-               %>
+                const level = (m) => parseInt(m[1].replace(/[<h>]+/g, ""));
+    
+                const toc = [
+                    {
+                        level: level(headingMatches[0]),
+                        name: headingMatches[0][2],
+                        children: []
+                    }
+                ];
+                const last = (arr = toc) => arr[arr.length - 1];
+                const makeEntry = (m) => ({level: level(m), name: m[2], children: []});
+                const getLevelArr = (lvl, arr = toc) => {
+                    if (arr[0].level === lvl) return arr;
+                    const top = last(arr);
+                    return top.children.length ? getLevelArr(lvl, top.children) : top.children;
+                };
+    
+    
+                for (let m = 1; m < headingMatches.length; m++) {
+                    const target = getLevelArr(level(headingMatches[m]));
+                    target.push(makeEntry(headingMatches[m]));
+                }
+                %>
     <div id="toc-pane" style="<%=subRoot.note.hasLabel("swapInfoCard")?"left:10px":"right:10px"%>">
       <strong>目录</strong>
       <ul id="toc">
@@ -458,23 +526,23 @@
         <div id="motto" class="bloggerInfoContentStyle"><%= subRoot.note.getLabelValue("motto") %></div>
       </div>
       <%
-      const linkLabels = [
-        "githubLink",
-        "RSSLink",  
-        "zhihuLink",
-        "sspaiLink",
-        "netEaseCloudLink",
-        "bilibiliLink",
-        "doubanLink",
-        "telegramLink", 
-        "mailLink"
-      ];
-      const socialInformationExist =  linkLabels.some(element => {
-        if (subRoot.note.hasLabel(element)){
-          return true;
-        }
-      });
-      %>
+       const linkLabels = [
+         "githubLink",
+         "RSSLink",  
+         "zhihuLink",
+         "sspaiLink",
+         "netEaseCloudLink",
+         "bilibiliLink",
+         "doubanLink",
+         "telegramLink", 
+         "mailLink"
+       ];
+       const socialInformationExist =  linkLabels.some(element => {
+         if (subRoot.note.hasLabel(element)){
+           return true;
+         }
+       });
+       %>
       <% if (socialInformationExist) {%>
       <div id="otherPlatformBar" class="bloggerInfoCardStyle">
         <% if (subRoot.note.hasLabel("githubLink") && subRoot.note.getLabelValue("githubLink")!=null) { %>
@@ -502,12 +570,12 @@
         <a class="platformStyle" target="_blank" rel="noopener" title="sspai" href="<%= subRoot.note.getLabelValue("sspaiLink") %>"><svg data-v-b3f1de54="" data-v-fda2b58a="" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" viewBox="0 0 36 36">
             <title>少数派</title>
             <path data-v-b3f1de54="" d="M18,0C8.1,0,0,8.1,0,18s8.1,18,18,18s18-8.1,18-18S27.9,0,18,0z M26.9,11.6c0,0.2-0.1,0.3-0.2,0.5
-           c-0.1,0.1-0.3,0.2-0.4,0.2l-3.3,0.6v8.3c0,0.5,0.1,1,0.3,1.4l2.1,4c0.1,0.1,0.1,0.2,0.1,0.3c0,0.1,0,0.2-0.1,0.3
-           c-0.1,0.1-0.1,0.2-0.3,0.2c-0.1,0.1-0.2,0.1-0.3,0.1H23c-0.1,0-0.3,0-0.4-0.1c-0.1-0.1-0.2-0.2-0.3-0.3l-2.1-3.9
-           c-0.2-0.5-0.4-1-0.4-1.5v-8.4l-4.6,0.8v11.4c0,0.2,0,0.4-0.1,0.5c-0.1,0.2-0.2,0.3-0.4,0.4l-1.3,0.8c-0.1,0.1-0.3,0.1-0.4,0.1
-           s-0.3,0-0.4-0.1c-0.1-0.1-0.2-0.2-0.3-0.3c-0.1-0.1-0.1-0.3-0.1-0.4v-12l-3.4,0.6c-0.1,0-0.2,0-0.4,0c-0.1,0-0.2-0.1-0.3-0.2
-           C8.1,14.9,8,14.8,8,14.6c0-0.1-0.1-0.2,0-0.4l0.2-1.4c0-0.2,0.1-0.3,0.2-0.5c0.1-0.1,0.3-0.2,0.5-0.2l17.4-2.9c0.1,0,0.3,0,0.4,0
-           c0.1,0,0.2,0.1,0.3,0.2C26.9,9.5,27,9.6,27,9.7c0,0.1,0.1,0.2,0,0.4L26.9,11.6z" class="logo"></path>
+            c-0.1,0.1-0.3,0.2-0.4,0.2l-3.3,0.6v8.3c0,0.5,0.1,1,0.3,1.4l2.1,4c0.1,0.1,0.1,0.2,0.1,0.3c0,0.1,0,0.2-0.1,0.3
+            c-0.1,0.1-0.1,0.2-0.3,0.2c-0.1,0.1-0.2,0.1-0.3,0.1H23c-0.1,0-0.3,0-0.4-0.1c-0.1-0.1-0.2-0.2-0.3-0.3l-2.1-3.9
+            c-0.2-0.5-0.4-1-0.4-1.5v-8.4l-4.6,0.8v11.4c0,0.2,0,0.4-0.1,0.5c-0.1,0.2-0.2,0.3-0.4,0.4l-1.3,0.8c-0.1,0.1-0.3,0.1-0.4,0.1
+            s-0.3,0-0.4-0.1c-0.1-0.1-0.2-0.2-0.3-0.3c-0.1-0.1-0.1-0.3-0.1-0.4v-12l-3.4,0.6c-0.1,0-0.2,0-0.4,0c-0.1,0-0.2-0.1-0.3-0.2
+            C8.1,14.9,8,14.8,8,14.6c0-0.1-0.1-0.2,0-0.4l0.2-1.4c0-0.2,0.1-0.3,0.2-0.5c0.1-0.1,0.3-0.2,0.5-0.2l17.4-2.9c0.1,0,0.3,0,0.4,0
+            c0.1,0,0.2,0.1,0.3,0.2C26.9,9.5,27,9.6,27,9.7c0,0.1,0.1,0.2,0,0.4L26.9,11.6z" class="logo"></path>
           </svg>
         </a>
         <% } %>
@@ -581,15 +649,15 @@
         </script>
       </div>
       <%}%>
-       </div>
-   
-     </div>
-     </div>
-     <div id="footer">
-       <hr>
-       <div>
-         <div>
-           <span>本站已稳定运行：<%= Math.ceil((new Date() - new Date(subRoot.note.getLabelValue("blogStartTime"))) / (24 * 60 * 60 * 1000)) %>天</span>
+        </div>
+    
+      </div>
+      </div>
+      <div id="footer">
+        <hr>
+        <div>
+          <div>
+            <span>本站已稳定运行：<%= Math.ceil((new Date() - new Date(subRoot.note.getLabelValue("blogStartTime"))) / (24 * 60 * 60 * 1000)) %>天</span>
     </div>
     <!-- 开源不易，请勿注释以下内容 -->
     <span>Powered by <a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/zadam/trilium">Trilium</a><b> X </b><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/dvai/Ankia-Theme">Ankia</a></span>

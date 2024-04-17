@@ -1,5 +1,5 @@
 /*!
- * Ankia-Theme v1.6
+ * Ankia-Theme v1.7
  * https://ankia.top/
  *
  * Licensed Apache-2.0 © 东东
@@ -102,9 +102,6 @@ document.addEventListener(
     window.onscroll = function () {
       var currentScrollPos = window.pageYOffset;
       const navigationBar = document.getElementById("navigationBar");
-      if (currentScrollPos < 100) {
-        return;
-      }
       if (prevScrollPos > currentScrollPos) {
         navigationBar.classList.remove("hide");
       } else if (
@@ -324,7 +321,7 @@ document.addEventListener(
         const json = await resp.json();
         const results = json.results;
         for (const result of results) {
-          if (result.path.includes("🗓️时间线") === false) {
+          if (result.path.includes("首页") === false) {
             continue;
           }
           searchResults.innerHTML += buildResultItem(result);
@@ -349,6 +346,36 @@ document.addEventListener(
       ) {
         searchContainer.style.display = "none";
       }
+    });
+  },
+  false
+);
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+    //音乐播放器
+    const playButtons = document.querySelectorAll(".playMusicButton");
+    // 为每个按钮添加点击事件
+    playButtons.forEach((button) => {
+      button.addEventListener("click", function () {
+        //用于判断是否是移动端
+        const toggleMenuButton = document.getElementById("toggleMenuButton");
+        var url = `//music.163.com/m/outchain/player?type=2&auto=1&height=32`;
+        if (getComputedStyle(toggleMenuButton).display === "none") {
+          url = `//music.163.com/outchain/player?type=2&auto=1&height=32`;
+        }
+        let oldPlayer = document.getElementById("musicPlayer");
+        if (oldPlayer != null) {
+          document.body.removeChild(oldPlayer);
+        }
+        const musicId = this.getAttribute("musicid");
+        var musicPlayer = document.createElement("div");
+        musicPlayer.id = "musicPlayer";
+
+        musicPlayer.innerHTML = `<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=298 height=52 src="${url}&id=${musicId}"></iframe>`;
+        document.body.appendChild(musicPlayer);
+      });
     });
   },
   false
