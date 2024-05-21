@@ -85,7 +85,7 @@
     }).replaceAll("language-application-javascript-env-backend" , "language-javascript").replaceAll("language-application-javascript-env-frontend" , "language-javascript");
     %>
 
-<body data-note-id="<%= note.noteId %>" data-ancestor-note-id="<%= subRoot.note.noteId %>">
+<body data-note-id="<%= note.noteId %>" data-ancestor-note-id="<%= subRoot.note.getVisibleChildNotes()[5].noteId %>">
   <div id="mobileMenuContainer"></div>
   <div id="globalBackground" style=""><img id="globalBackgroundImg" src="api/images/<%= subRoot.note.getRelation("homepageBG").value %>/主页背景" style="position: fixed;margin-left: auto;margin-right: auto;display: flex;-o-object-fit: cover;object-fit: cover;" width="auto" height="100%">
     <div class="overlay"></div>

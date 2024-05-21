@@ -321,9 +321,6 @@ document.addEventListener(
         const json = await resp.json();
         const results = json.results;
         for (const result of results) {
-          if (result.path.includes("首页") === false) {
-            continue;
-          }
           searchResults.innerHTML += buildResultItem(result);
         }
       }
