@@ -15,7 +15,7 @@ const tags = note.getLabelValues("tags");
 const lastTagString = note.getLabelValue("lastTags");
 const tagsRoot = api.getNoteWithLabel("blogTagRoot");
 
-if (category != "说说") {
+if (category != "Activity") {
     api.toggleNoteInParent(publishStatus === "true", note.noteId, timeLineRoot.noteId);
 }
 api.toggleNoteInParent(publishStatus === "true", note.noteId, categoryNote.noteId);
@@ -54,9 +54,9 @@ note.save();
 
 function extractTextFromHTML(html) {
     var text = html.replace(/<[^>]*>/g, '');
-    text = text.replace(/\s+/g, '');
+    text = text.replace(/\s+/g, ' ');
 
-    var extractedText = text.substring(0, 120);
+    var extractedText = text.substring(0, 300);
 
     return `${extractedText}...`;
 }

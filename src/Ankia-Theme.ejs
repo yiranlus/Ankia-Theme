@@ -6,26 +6,24 @@
  -->
 <!DOCTYPE html>
 <html lang="en">
-<% 
+<%
         const bloggerName =  subRoot.note.getLabelValue("bloggerName") ;
         const siteName =  subRoot.note.getLabelValue("siteName") ;
         const siteDescription =  note.getLabelValue("summary") ;
-        const bloggerAvatar  = `api/images/${subRoot.note.getRelation("bloggerAvatar").value}/博主头像`
+        const bloggerAvatar  = `api/images/${subRoot.note.getRelation("bloggerAvatar").value}/Avatar`
         var count = 0;
-        
+
         function getDaysAgo(dateStr) {
           const date = new Date(dateStr);
           const currentDate = new Date();
           const delta = currentDate - date;
           const days = Math.floor(delta / (1000 * 60 * 60 * 24));
-    
-          if (days === 0) {return "今天";
-          } else if (days === 1) {return "昨天";
-          } else if (days === 2) {return "前天";
-          } else if (days < 7) {return `${days}天前`;
-          } else if (days < 30) {const weeks = Math.floor(days / 7);return `${weeks}周前`;
-          } else if (days <365) {const months = Math.floor(days /30);return `${months}个月前`;
-          } else{const years = Math.floor(days/365);return `${years}年前`;}
+
+          if (days === 0) {return "today";
+          } else if (days < 7) {return `${days}d`;
+          } else if (days < 30) {const weeks = Math.floor(days / 7);return `${weeks}w`;
+          } else if (days <365) {const months = Math.floor(days /30);return `${months}m`;
+          } else{const years = Math.floor(days/365);return `${years}y`;}
         }
         %>
 
@@ -59,6 +57,9 @@
   <% } %>
   <%- header %>
   <script src="https://lib.baomitu.com/twikoo/1.6.7/twikoo.all.min.js"></script>
+  <% if (subRoot.note.hasLabel("enableDisqus")) { %>
+    <script id="dsq-count-scr" src="//ylus.disqus.com/count.js" async></script>
+  <% } %>
 </head>
 
 <%
@@ -95,14 +96,14 @@
       <!-- 屏蔽icon
        <img src="api/images/<%= subRoot.note.getRelation("shareFavicon").value %>/logo.svg" alt="Logo" />
          -->
-      <a href="./" title="返回主页"><%= siteName %></a>
+      <a href="./" title="Back to Home"><%= siteName %></a>
     </div>
     <div id="navigationItems">
       <div class="navigationItemsStyle">
-        <a href="./" title="首页" class="menuLinkStyle">首页</a>
+        <a href="./" title="Home" class="menuLinkStyle">Home</a>
       </div>
       <div class="navigationItemsStyle">
-        <a id="category" title="分类" class="menuLinkStyle">分类<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="
+        <a id="category" title="Category" class="menuLinkStyle">Categories<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="
         width: 10px;
         height: 10px;
         margin-left: 2px;
@@ -157,7 +158,7 @@
   </div>
   <div style="display: flex;justify-content: center;">
     <div id="searchContainer" class="searchContainerStyle">
-      <input type="text" id="searchInput" placeholder="请输入查询内容...">
+      <input type="text" id="searchInput" placeholder="Enter the query...">
       <div id="searchResults"></div>
     </div>
   </div>
@@ -192,15 +193,15 @@
           </div>
           <% } %>
 
-          <div class="blogMetadate" title="本文字数">
+          <div class="blogMetadate" title="Word Count">
             <svg xmlns="http://www.w3.org/2000/svg" width="0.8rem" height="0.8rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
             </svg>
             <span id="articleWordCount" style="padding-left: 0.3em;">-</span>
-            <span>字</span>
+            <span>w</span>
           </div>
-          <div class="blogMetadate" title="发表日期">
+          <div class="blogMetadate" title="Date Published">
             <svg xmlns="http://www.w3.org/2000/svg" width="0.8rem" height="0.8rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
               <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -218,10 +219,10 @@
 
       <% if (!isEmpty) { %>
 
-      <% if (note.getLabelValue("categoryName") === "友链") { %>
+      <% if (note.getLabelValue("categoryName") === "Links") { %>
       <div class="fLinkContainer">
-        <% const fLnksDate = content.replace(/<\/?pre>/g, '').replace(/[\n\s]/g, "");const fLinks = JSON.parse(fLnksDate); 
-                    
+        <% const fLnksDate = content.replace(/<\/?pre>/g, '').replace(/[\n\s]/g, " ");const fLinks = JSON.parse(fLnksDate);
+
                 for (let key in fLinks) {%>
 
         <a class="fLink cf-friends-link" href="<%= fLinks[key]['link'] %>" target="_blank" rel="noopener">
@@ -234,21 +235,21 @@
       <div>
         <hr>
         <blockquote>
-          <p>声明：<%= note.getLabelValue("notes") %>
+          <p>Notes: <%= note.getLabelValue("notes") %>
           </p>
         </blockquote>
-        <p>我的友链：</p>
+        <p>My link：</p>
         <pre><code class="language-json">"title": "<%= note.getLabelValue("myTitle") %>",
-  "link": "<%= note.getLabelValue("myLink") %>",
-  "img": "<%= note.getLabelValue("myImg") %>",
-  "des": "<%= note.getLabelValue("myDes") %>"</code></pre>
+"link": "<%= note.getLabelValue("myLink") %>",
+"img": "<%= note.getLabelValue("myImg") %>",
+"des": "<%= note.getLabelValue("myDes") %>"</code></pre>
         <p>加入本站友链的格式：</p>
         <pre><code class="language-json">{
     "title": "博客名称",  //建议8个中文字符以内
     "link": "博客链接",
     "img": "站长头像",
     "des": "博客描述"
-    }</code></pre>
+}</code></pre>
       </div>
 
       <% } else if (note.getLabelValue("categoryName") === "朋友圈")  {%>
@@ -269,7 +270,7 @@
           <%- content %>
         </div>
       <%- include('now') %>
-      <% } else if (note.getLabelValue("categoryName") === "归档")  {%>
+      <% } else if (note.getLabelValue("categoryName") === "Archive")  {%>
       <% const groupedNotes = Object.fromEntries(
                  Object.entries(
                    subRoot.note.getVisibleChildNotes()[5].getVisibleChildNotes().reduce((groupedNotes, note) => {
@@ -288,7 +289,7 @@
                  )
                )
                const postYears = Object.keys(groupedNotes).sort((a, b) => b - a);
-                   
+
              %>
       <div id="content" class="timeline">
         <% postYears.forEach(postYear =>{ %>
@@ -305,8 +306,8 @@
         <%})%>
 
       </div>
-      <% } else if (note.getLabelValue("categoryName") === "标签云")  {%>
-      <% 
+      <% } else if (note.getLabelValue("categoryName") === "tagCloud")  {%>
+      <%
              function getRandomColor() {
                  const letters = '0123456789ABCDEF';
                  let color = '#';
@@ -325,6 +326,28 @@
       <div id="content" class="type-<%= note.type %><% if (note.type === 'text') { %> ck-content<% } %>">
         <%- content %>
       </div>
+      <!-- Disqus -->
+      <% if (subRoot.note.hasLabel("enableDisqus")) { %>
+      <div id="disqus_thread"></div>
+      <script>
+        /**
+        *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+        *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+
+        var disqus_config = function () {
+          this.page.url = window.location.protocol + "//" + window.location.host + window.location.pathname;
+          this.page.identifier = "<%= note.noteId %>";
+        };
+
+        (function() { // DON'T EDIT BELOW THIS LINE
+          var d = document, s = d.createElement('script');
+          s.src = "<%= subRoot.note.getLabelValue("disqusEmbedJs") %>";
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      <% } %>
       <% } %>
       <% if (subRoot.note.hasLabel("enableReward") && note.hasLabel("showReward")) { %>
       <div id="rewardContainer">
@@ -351,7 +374,7 @@
         <% if (!isEmpty) { %>
         <hr>
         <% } %>
-        <% const childNotes = note.getLabelValue("categoryName")==="首页" ? note.getVisibleChildNotes().slice(0,15) :  note.getVisibleChildNotes();
+        <% const childNotes = note.getLabelValue("categoryName")==="Home" ? note.getVisibleChildNotes().slice(0,15) :  note.getVisibleChildNotes();
                     for (const childNote of childNotes) {
                         const isExternalLink = childNote.hasLabel('shareExternalLink');
                         const linkHref = isExternalLink ? childNote.getLabelValue('shareExternalLink') : `./${childNote.shareId}`;
@@ -362,7 +385,7 @@
             <a style="color: black;" href="<%= linkHref %>" <%= target %> class="type-<%= childNote.type %>">
               <div>
                 <% if (childNote.hasLabel("blogPostTop")) { %>
-                <b class="blogPostTopStyle">📌置顶</b>
+                <b class="blogPostTopStyle">📌</b>
                 <% } %>
                 <b id="blogItemTitle"><%= childNote.title %></b>
               </div>
@@ -401,7 +424,7 @@
                 </div>
               </a>
 
-              <% if (childNote.hasLabel("date") && childNote.getLabelValue("date")!=null) { 
+              <% if (childNote.hasLabel("date") && childNote.getLabelValue("date")!=null) {
                             const postDate = childNote.getLabelValue("date");
                             %>
               <div class="blogMetadateItems">
@@ -412,15 +435,26 @@
                 <div id="blogPostDate" style="margin-left: 0.3rem;" blogpostdate="<%= postDate %>"><%= getDaysAgo(postDate.split("T")[0])%></div>
               </div>
               <% } %>
+
+              <% if (subRoot.note.hasLabel("enableDisqus")) { %>
+              <div class="blogMetadateItems">
+                <svg xmlns="http://www.w3.org/2000/svg" width="0.8rem" height="0.8rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-circle">
+                  <path d="M1.5,5.3v9.54a3.82,3.82,0,0,0,3.82,3.82H7.23v2.86L13,18.66h5.73a3.82,3.82,0,0,0,3.82-3.82V5.3a3.82,3.82,0,0,0-3.82-3.82H5.32A3.82,3.82,0,0,0,1.5,5.3Z"></path>
+                </svg>
+                <div id="blogPostComments" style="margin-left: 0.3rem;">
+                  <a href="https://altrikb.trilium.cc/share/<%= childNote.noteId %>#disqus_thread">Link</a>
+                </div>
+              </div>
+              <% } %>
             </div>
           </div>
         </div>
         <% } %>
       </nav>
-      <% if(note.getLabelValue("categoryName")==="首页"){  %>
+      <% if(note.getLabelValue("categoryName")==="Home"){  %>
       <div id="morePost">
-        <div> =&nbsp更多内容请前往&nbsp</div>
-        <a href="./timeline">归档</a>
+        <div> =&nbspExplor more content at &nbsp</div>
+        <a href="./timeline">Archive</a>
         <div> &nbsp= </div>
       </div>
       <% } %>
@@ -451,8 +485,8 @@
     <div id="menuCard" class="cardContainerStyle" style="<%=subRoot.note.hasLabel("swapInfoCard")?"right:10px":"left:10px"%>">
       <% if(subRoot.note.hasLabel("enablePersonalDynamic")) {%>
       <div id="recentActivityCard" class="bloggerInfoCardStyle" style="margin-left: auto;">
-        <a href="./recentActivity" style="color:black" title="浏览全部说说">
-          <div class="bloggerInfoTitleStyle">说说</div>
+        <a href="./recentActivity" style="color:black" title="Recent Activities">
+          <div class="bloggerInfoTitleStyle">Activities</div>
         </a>
         <hr>
         <% subRoot.note.getVisibleChildNotes()[0].getVisibleChildNotes().slice(0,5).forEach((childNote)=>{%>
@@ -468,8 +502,8 @@
       <% } %>
       <% if(subRoot.note.hasLabel("enableRecommendedReading")) {%>
       <div id="recommendedReadingCard" class="bloggerInfoCardStyle" style="margin-left: auto;">
-        <a href="./recommendedReading" style="color:black" title="浏览全部推荐">
-          <div class="bloggerInfoTitleStyle">推荐阅读</div>
+        <a href="./recommendedReading" style="color:black" title="All Recomendations">
+          <div class="bloggerInfoTitleStyle">Recommendations</div>
         </a>
         <hr>
         <% subRoot.note.getVisibleChildNotes()[2].getVisibleChildNotes().forEach((childNote)=>{%>
@@ -485,7 +519,7 @@
     <!-- 目录插件 -->
     <%
                 const level = (m) => parseInt(m[1].replace(/[<h>]+/g, ""));
-    
+
                 const toc = [
                     {
                         level: level(headingMatches[0]),
@@ -500,15 +534,15 @@
                     const top = last(arr);
                     return top.children.length ? getLevelArr(lvl, top.children) : top.children;
                 };
-    
-    
+
+
                 for (let m = 1; m < headingMatches.length; m++) {
                     const target = getLevelArr(level(headingMatches[m]));
                     target.push(makeEntry(headingMatches[m]));
                 }
                 %>
     <div id="toc-pane" style="<%=subRoot.note.hasLabel("swapInfoCard")?"left:10px":"right:10px"%>">
-      <strong>目录</strong>
+      <strong>Content</strong>
       <ul id="toc">
         <% for (const entry of toc) { %>
         <%- include('toc_item', {entry}) %>
@@ -519,7 +553,7 @@
     <% }%>
     <div id="bloggerInfoCard" class="cardContainerStyle" style="<%=subRoot.note.hasLabel("swapInfoCard")?"left:10px":"right:10px"%>; display:<%=headingMatches.length > 1?"none":"block"  %>">
       <div id="bloggerInfo" class="bloggerInfoCardStyle">
-        <a href="./about" title="关于博主">
+        <a href="./about" title="About">
           <img src=<%= bloggerAvatar %> href="./about">
         </a>
         <div id="bloggerInfoName" class="bloggerInfoTitleStyle"><%= bloggerName%></div>
@@ -528,13 +562,14 @@
       <%
        const linkLabels = [
          "githubLink",
-         "RSSLink",  
+         "linkedinLink",
+         "RSSLink",
          "zhihuLink",
          "sspaiLink",
          "netEaseCloudLink",
          "bilibiliLink",
          "doubanLink",
-         "telegramLink", 
+         "telegramLink",
          "mailLink"
        ];
        const socialInformationExist =  linkLabels.some(element => {
@@ -558,6 +593,12 @@
             <path d="M19.199 24C19.199 13.467 10.533 4.8 0 4.8V0c13.165 0 24 10.835 24 24h-4.801zM3.291 17.415c1.814 0 3.293 1.479 3.293 3.295 0 1.813-1.485 3.29-3.301 3.29C1.47 24 0 22.526 0 20.71s1.475-3.294 3.291-3.295zM15.909 24h-4.665c0-6.169-5.075-11.245-11.244-11.245V8.09c8.727 0 15.909 7.184 15.909 15.91z" />
           </svg>
         </a>
+        <% } %>
+        <% if (subRoot.note.hasLabel("linkedinLink") && subRoot.note.getLabelValue("linkedinLink")!=null) { %>
+        <a class="platformStyle" target="_blank" rel="noopener" title="linkedin" href="<%= subRoot.note.getLabelValue("linkedinLink") %>"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <title>LinkedIn</title>
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+          </svg>
         <% } %>
         <% if (subRoot.note.hasLabel("zhihuLink") && subRoot.note.getLabelValue("zhihuLink")!=null) { %>
         <a class="platformStyle" target="_blank" rel="noopener" title="zhihu" href="<%= subRoot.note.getLabelValue("zhihuLink") %>"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -617,7 +658,7 @@
       </div>
       <% } %>
       <div id="announcement" class="bloggerInfoCardStyle">
-        <div class="bloggerInfoTitleStyle">公告</div>
+        <div class="bloggerInfoTitleStyle">Announcement</div>
         <hr>
         <div style="text-align: left;text-indent: 1em;" class="bloggerInfoContentStyle"><%= subRoot.note.getLabelValue("announcement") %></div>
       </div>
@@ -650,14 +691,14 @@
       </div>
       <%}%>
         </div>
-    
+
       </div>
       </div>
       <div id="footer">
         <hr>
         <div>
           <div>
-            <span>本站已稳定运行：<%= Math.ceil((new Date() - new Date(subRoot.note.getLabelValue("blogStartTime"))) / (24 * 60 * 60 * 1000)) %>天</span>
+            <span>This blog has been running for：<%= Math.ceil((new Date() - new Date(subRoot.note.getLabelValue("blogStartTime"))) / (24 * 60 * 60 * 1000)) %> days</span>
     </div>
     <!-- 开源不易，请勿注释以下内容 -->
     <span>Powered by <a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/zadam/trilium">Trilium</a><b> X </b><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/dvai/Ankia-Theme">Ankia</a></span>

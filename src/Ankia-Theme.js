@@ -278,7 +278,7 @@ document.addEventListener(
     articleWordCount.innerText = content.innerText
       .split(/[\s-+:,/\\]+/)
       .filter((chunk) => chunk !== "")
-      .join("").length;
+      .length;
   },
   false
 );
