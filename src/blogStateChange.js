@@ -1,8 +1,9 @@
 if (api.originEntity.isDeleted) {
-    return;
+  return;
 }
 
-if (api.originEntity.name != "publish") { return }
+if (api.originEntity.name != "publish") { return };
+
 const note = api.originEntity.getNote();
 const timeLineRoot = api.getNoteWithLabel("timeLineRoot");
 const unpublishedRoot = api.getNoteWithLabel("unpublishedRoot");
@@ -16,47 +17,56 @@ const lastTagString = note.getLabelValue("lastTags");
 const tagsRoot = api.getNoteWithLabel("blogTagRoot");
 
 if (category != "Activity") {
-    api.toggleNoteInParent(publishStatus === "true", note.noteId, timeLineRoot.noteId);
+  api.toggleNoteInParent(publishStatus === "true", note.noteId, timeLineRoot.noteId);
 }
 api.toggleNoteInParent(publishStatus === "true", note.noteId, categoryNote.noteId);
 if (publishStatus === "false") {
-    api.toggleNoteInParent(true, note.noteId, unpublishedRoot.noteId);
-    if (lastTagString != null && lastTagString != undefined && lastTagString != "") {
-        const lastTags = lastTagString.split("|");
-        lastTags.forEach((lastTag) => {
-            api.toggleNoteInParent(false, note.noteId, api.getNoteWithLabel("blogTag", lastTag).noteId);
-            note.setLabel("lastTagString", "");
-        })
-    }
+  api.toggleNoteInParent(true, note.noteId, unpublishedRoot.noteId);
+  if (lastTagString != null && lastTagString != undefined && lastTagString != "") {
+    const lastTags = lastTagString.split("|");
+    lastTags.forEach((lastTag) => {
+      api.toggleNoteInParent(false, note.noteId, api.getNoteWithLabel("blogTag", lastTag).noteId);
+      note.setLabel("lastTagString", "");
+    })
+  }
 } else {
-    const content = note.getContent();
-    note.setLabel("summary", extractTextFromHTML(content));
+  const content = note.getContent();
+  note.setLabel("summary", extractTextFromHTML(content));
 
-    tags.forEach((tag) => {
-        const tagNote = api.getNoteWithLabel("blogTag", tag);
-        if (tagNote === null || tagNote === undefined || tagNote === "") {
-            const resp = api.createTextNote(tagsRoot.noteId, tag, "");
-            resp.note.setLabel("blogTag", tag);
-            resp.note.setLabel("shareAlias", `tag_${tag}`);
-            api.toggleNoteInParent(true, note.noteId, resp.note.noteId);
-        } else {
-            api.toggleNoteInParent(true, note.noteId, tagNote.noteId);
-        }
-    });
-    note.setLabel("lastTags", tags.join("|"));
-    if (unpublishedRoot.getChildNotes().some(ele => ele.noteId === note.noteId)) {
-        api.toggleNoteInParent(false, note.noteId, unpublishedRoot.noteId);
+  tags.forEach((tag) => {
+    const tagNote = api.getNoteWithLabel("blogTag", tag);
+    if (tagNote === null || tagNote === undefined || tagNote === "") {
+      const resp = api.createTextNote(tagsRoot.noteId, tag, "");
+      resp.note.setLabel("blogTag", tag);
+      resp.note.setLabel("shareAlias", `tag_${tag}`);
+      api.toggleNoteInParent(true, note.noteId, resp.note.noteId);
+    } else {
+      api.toggleNoteInParent(true, note.noteId, tagNote.noteId);
     }
+  });
+  note.setLabel("lastTags", tags.join("|"));
+  if (unpublishedRoot.getChildNotes().some(ele => ele.noteId === note.noteId)) {
+    api.toggleNoteInParent(false, note.noteId, unpublishedRoot.noteId);
+  }
+
+  const hostname = api.searchForNote("#siteHostname").getAttributeValue("label", "siteHostname");
+
+  // console.log('Start IndexNow');
+
+  // fetch(`https://www.bing.com/indexnow?url=https://${hostname}/share/${note.noteId}&key=e455617bb92f477baab361f01b5f3775&keyLocation=https://${hostname}/share/indexNowKey.txt`)
+  // .then(response => console.log('GET Response:', "Yes"))
+  // .catch(error => console.error('GET request failed:', error));
+
 }
 
 
 note.save();
 
 function extractTextFromHTML(html) {
-    var text = html.replace(/<[^>]*>/g, '');
-    text = text.replace(/\s+/g, ' ');
+  var text = html.replace(/<[^>]*>/g, '');
+  text = text.replace(/\s+/g, ' ');
 
-    var extractedText = text.substring(0, 300);
+  var extractedText = text.substring(0, 450);
 
-    return `${extractedText}...`;
+  return `${extractedText}...`;
 }

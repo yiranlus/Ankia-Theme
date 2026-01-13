@@ -7,25 +7,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <%
-        const bloggerName =  subRoot.note.getLabelValue("bloggerName") ;
-        const siteName =  subRoot.note.getLabelValue("siteName") ;
-        const siteDescription =  note.getLabelValue("summary") ;
-        const bloggerAvatar  = `api/images/${subRoot.note.getRelation("bloggerAvatar").value}/Avatar`
-        var count = 0;
+  const bloggerName =  subRoot.note.getLabelValue("bloggerName") ;
+  const siteName =  subRoot.note.getLabelValue("siteName");
+  const siteHostname = subRoot.note.getLabelValue("siteHostname");
+  const siteDescription =  note.getLabelValue("summary") ;
+  const shortSiteDescription = siteDescription?.substring(0, 150);
+  const bloggerAvatar  = `api/images/${subRoot.note.getRelation("bloggerAvatar").value}/Avatar`
+  var count = 0;
 
-        function getDaysAgo(dateStr) {
-          const date = new Date(dateStr);
-          const currentDate = new Date();
-          const delta = currentDate - date;
-          const days = Math.floor(delta / (1000 * 60 * 60 * 24));
+  function getDaysAgo(dateStr) {
+    const date = new Date(dateStr);
+    const currentDate = new Date();
+    const delta = currentDate - date;
+    const days = Math.floor(delta / (1000 * 60 * 60 * 24));
 
-          if (days === 0) {return "today";
-          } else if (days < 7) {return `${days}d`;
-          } else if (days < 30) {const weeks = Math.floor(days / 7);return `${weeks}w`;
-          } else if (days <365) {const months = Math.floor(days /30);return `${months}m`;
-          } else{const years = Math.floor(days/365);return `${years}y`;}
-        }
-        %>
+    if (days === 0) {
+      return "today";
+    } else if (days < 7) {
+      return `${days}d`;
+    } else if (days < 30) {
+      const weeks = Math.floor(days / 7);
+      return `${weeks}w`;
+    } else if (days < 365) {
+      const months = Math.floor(days /30);
+      return `${months}m`;
+    } else {
+      const years = Math.floor(days/365);
+      return `${years}y`;
+    }
+  }
+%>
 
 <head>
   <meta charset="UTF-8">
@@ -37,79 +48,107 @@
   <meta name="copyright" content="<%= bloggerName%>">
   <meta name="format-detection" content="telephone=no">
   <meta name="theme-color" content="#5986D1">
-  <meta name="description" content="<%= siteDescription %>">
-  <link href="api/notes/<%= note.getRelation("prismCSS").value %>/download" rel="stylesheet">
-  <script type="module" src="api/notes/<%= note.getRelation("prismJS").value %>/download"></script>
+  <meta name="description" content="<%= shortSiteDescription %>">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.css" integrity="sha384-WcoG4HRXMzYzfCgiyfrySxx90XSl2rxY5mnVY5TwtWE6KLrArNKn0T/mOgNL0Mmi" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.js" integrity="sha384-J+9dG2KMoiR9hqcFao0IBLwxt6zpcyN68IgwzsCSkbreXUjmNVRhPFTssqdSGjwQ" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          // customised options
+          // • auto-render specific keys, e.g.:
+          delimiters: [
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+          // • rendering keys, e.g.:
+          throwOnError : false
+        });
+    });
+</script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
   <link rel="stylesheet" href="https://npm.elemecdn.com/lxgw-wenkai-screen-webfont/style.css" media="print" onload="this.media='all'">
   <% if (note.hasRelation("shareFavicon")) { %>
-  <link rel="shortcut icon" href="api/notes/<%= note.getRelation("shareFavicon").value %>/download">
+  <link rel="shortcut icon" href="<%= note.getRelation("shareFavicon").value %>">
   <% } else { %>
   <link rel="shortcut icon" href="../favicon.ico">
   <% } %>
   <% for (const cssRelation of note.getRelations("shareCss")) { %>
-  <link href="api/notes/<%= cssRelation.value %>/download" rel="stylesheet">
+  <link href="<%= cssRelation.value %>" rel="stylesheet">
   <% } %>
   <% for (const jsRelation of note.getRelations("shareJs")) { %>
-  <script type="module" src="api/notes/<%= jsRelation.value %>/download"></script>
+  <script type="module" src="<%= jsRelation.value %>"></script>
   <% } %>
   <% if (note.isLabelTruthy('shareDisallowRobotIndexing')) { %>
   <meta name="robots" content="noindex,follow" />
   <% } %>
   <%- header %>
-  <script src="https://lib.baomitu.com/twikoo/1.6.7/twikoo.all.min.js"></script>
-  <% if (subRoot.note.hasLabel("enableDisqus")) { %>
-    <script id="dsq-count-scr" src="//ylus.disqus.com/count.js" async></script>
+  <% if (subRoot.note.hasLabel("enableTwikoo")) { %>
+    <script src="https://lib.baomitu.com/twikoo/1.6.7/twikoo.all.min.js"></script>
   <% } %>
+  <% if (subRoot.note.hasLabel("enableDisqus")) {
+        const disqusHostname =  subRoot.note.getLabelValue("disqusHostname");
+  %>
+    <script id="dsq-count-scr" src="https//<%= disqusHostname %>/count.js" async></script>
+  <% } %>
+  <script defer type="text/javascript" src="<%= note.getRelation('umamiJS').value %>" data-website-id="7c04013f-0910-4a82-ac72-a14579ba51a7"></script>
 </head>
 
 <%
-    const headingRe = /(<h[1-6]\s*(?:[^>]+\s*)*>)(.+?)(<\/h[1-6]>)/g;
-    const headingMatches = [...content.matchAll(headingRe)];
-    const slugify = (text) => text.replace(/\s/g, " ");
-    content = content.replaceAll(headingRe, (...match) => {
-        const regex = /(<([^>]+)>)/ig;
-        const tocTextContent = slugify(match[2]).replace(regex, '')
-        match[0] = match[0].replace(match[3], `<a id="${tocTextContent}" class="toc-anchor" name="${tocTextContent}" href="#${tocTextContent}">※</a>${match[3]}`);
-        return match[0];
-    }).replaceAll(/class="language-text-x-(\w+)"/g , (...match) => {
-        match[0] = match[0].replace("-text-x", "");
-        return match[0];
-    }).replaceAll( /class="language-text-(\w+)"/g , (...match) => {
-        match[0] = match[0].replace("-text", "");
-        return match[0];
-    }).replaceAll( /class="language-application-x-(\w+)"/g , (...match) => {
-        match[0] = match[0].replace("-application-x", "");
-        return match[0];
-    }).replaceAll( /class="language-application-(\w+)"/g , (...match) => {
-        match[0] = match[0].replace("-application", "");
-        return match[0];
-    }).replaceAll("language-application-javascript-env-backend" , "language-javascript").replaceAll("language-application-javascript-env-frontend" , "language-javascript");
-    %>
+  const headingRe = /(<h[1-6]\s*(?:[^>]+\s*)*>)(.+?)(<\/h[1-6]>)/g;
+  const headingMatches = [...content.matchAll(headingRe)];
+  const slugify = (text) => text.replace(/\s/g, " ");
+  content = content.replaceAll(headingRe, (...match) => {
+      const regex = /(<([^>]+)>)/ig;
+      const tocTextContent = slugify(match[2]).replace(regex, '')
+      match[0] = match[0].replace(match[3], `<a id="${tocTextContent}" class="toc-anchor" name="${tocTextContent}" href="#${tocTextContent}">※</a>${match[3]}`);
+      return match[0];
+  }).replaceAll(/class="[^"]*language-text-x-(\w+)[^"]*"/g , (...match) => {
+      match[0] = match[0].replace("-text-x", "");
+      return match[0];
+  }).replaceAll( /class="[^"]*language-text-(\w+)[^"]*"/g , (...match) => {
+      match[0] = match[0].replace("-text", "");
+      return match[0];
+  }).replaceAll( /class="[^"]*language-application-x-(\w+)[^"]*"/g , (...match) => {
+      match[0] = match[0].replace("-application-x", "");
+      return match[0];
+  }).replaceAll( /class="[^"]*language-application-(\w+)[^"]*"/g , (...match) => {
+      match[0] = match[0].replace("-application", "");
+      return match[0];
+  }).replaceAll(
+    "language-application-javascript-env-backend", "language-javascript"
+  ).replaceAll(
+    "language-application-javascript-env-frontend" , "language-javascript"
+  );
+%>
 
 <body data-note-id="<%= note.noteId %>" data-ancestor-note-id="<%= subRoot.note.getVisibleChildNotes()[5].noteId %>">
   <div id="mobileMenuContainer"></div>
-  <div id="globalBackground" style=""><img id="globalBackgroundImg" src="api/images/<%= subRoot.note.getRelation("homepageBG").value %>/主页背景" style="position: fixed;margin-left: auto;margin-right: auto;display: flex;-o-object-fit: cover;object-fit: cover;" width="auto" height="100%">
+  <div id="globalBackground">
+    <img id="globalBackgroundImg" src="api/images/<%= subRoot.note.getRelation("homepageBG").value %>/Background" style="position: fixed;margin-left: auto;margin-right: auto;display: flex;-o-object-fit: cover;object-fit: cover;" width="auto" height="100%">
     <div class="overlay"></div>
   </div>
   <div id="navigationBar" class="scroll-hide">
     <div id="siteTitle">
       <!-- 屏蔽icon
        <img src="api/images/<%= subRoot.note.getRelation("shareFavicon").value %>/logo.svg" alt="Logo" />
-         -->
+       -->
       <a href="./" title="Back to Home"><%= siteName %></a>
     </div>
     <div id="navigationItems">
-      <div class="navigationItemsStyle">
+      <!-- <div class="navigationItemsStyle">
         <a href="./" title="Home" class="menuLinkStyle">Home</a>
-      </div>
+      </div> -->
       <div class="navigationItemsStyle">
-        <a id="category" title="Category" class="menuLinkStyle">Categories<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="
-        width: 10px;
-        height: 10px;
-        margin-left: 2px;
-    ">
+        <a id="category" title="Category" class="menuLinkStyle">Categories<svg
+           xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="3" stroke-linecap="round"
+           stroke-linejoin="round"
+           style=" width: 10px; height: 10px; margin-left: 2px;">
             <path d="M3 8L12 17L21 8"></path>
-          </svg></a>
+          </svg>
+        </a>
         <div id="categoryDropDown" class="dropDownStyle">
           <% subRoot.note.getVisibleChildNotes()[1].getVisibleChildNotes().forEach((childNote)=> { %>
           <a href="<%= childNote.shareId %>" title="<%= childNote.title %>" style="display: flex;justify-content: flex-start;align-items: center;" class="menuLinkStyle"><%= childNote.title %>
@@ -221,10 +260,11 @@
 
       <% if (note.getLabelValue("categoryName") === "Links") { %>
       <div class="fLinkContainer">
-        <% const fLnksDate = content.replace(/<\/?pre>/g, '').replace(/[\n\s]/g, " ");const fLinks = JSON.parse(fLnksDate);
+        <%
+          const fLnksDate = content.replace(/<\/?pre>/g, '').replace(/[\n\s]/g, " ");
+          const fLinks = JSON.parse(fLnksDate);
 
-                for (let key in fLinks) {%>
-
+          for (let key in fLinks) {%>
         <a class="fLink cf-friends-link" href="<%= fLinks[key]['link'] %>" target="_blank" rel="noopener">
           <img class="cf-friends-avatar" src="<%= fLinks[key]['img'] %>" alt="<%= fLinks[key]['title'] %>">
           <div id="fLinkTitle" class="cf-friends-name"><%= fLinks[key]['title'] %></div>
@@ -270,7 +310,7 @@
           <%- content %>
         </div>
       <%- include('now') %>
-      <% } else if (note.getLabelValue("categoryName") === "Archive")  {%>
+      <% } else if (note.getLabelValue("categoryName") === "Timeline")  {%>
       <% const groupedNotes = Object.fromEntries(
                  Object.entries(
                    subRoot.note.getVisibleChildNotes()[5].getVisibleChildNotes().reduce((groupedNotes, note) => {
@@ -326,28 +366,68 @@
       <div id="content" class="type-<%= note.type %><% if (note.type === 'text') { %> ck-content<% } %>">
         <%- content %>
       </div>
-      <!-- Disqus -->
-      <% if (subRoot.note.hasLabel("enableDisqus")) { %>
-      <div id="disqus_thread"></div>
-      <script>
-        /**
-        *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
-        *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+        <!-- Disqus -->
+        <% if ((subRoot.note.hasLabel("enableDisqus") &&
+        !note.hasLabel("disableDisqus")) && (!note.hasLabel("shareAlias") ||
+        note.getLabelValue("shareAlias") !== "about")) { %>
+          <div id="disqus_container">
+            <button id="zaraz-consent-trigger" onclick="zaraz.consent.modal = true" aria-label="Privacy Settings">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+              <span>Privacy</span>
+            </button>
+            <style>
+            #zaraz-consent-trigger {
+              position: fixed;
+              bottom: 20px;
+              left: 20px;
+              z-index: 9999; /* Ensures it stays on top of other elements */
 
-        var disqus_config = function () {
-          this.page.url = window.location.protocol + "//" + window.location.host + window.location.pathname;
-          this.page.identifier = "<%= note.noteId %>";
-        };
+              display: flex;
+              align-items: center;
+              gap: 8px;
 
-        (function() { // DON'T EDIT BELOW THIS LINE
-          var d = document, s = d.createElement('script');
-          s.src = "<%= subRoot.note.getLabelValue("disqusEmbedJs") %>";
-          s.setAttribute('data-timestamp', +new Date());
-          (d.head || d.body).appendChild(s);
-        })();
-      </script>
-      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-      <% } %>
+              padding: 10px 16px;
+              background-color: #000000; /* Adjust to match your brand */
+              color: #ffffff;
+              border: none;
+              border-radius: 8px;
+              cursor: pointer;
+              font-family: sans-serif;
+              font-size: 14px;
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+              transition: transform 0.2s ease, background-color 0.2s ease;
+            }
+
+            #zaraz-consent-trigger:hover {
+              background-color: #333333;
+              transform: translateY(-2px);
+            }
+
+            /* Hide on very small screens if it overlaps content (optional) */
+            @media (max-width: 480px) {
+              #zaraz-consent-trigger span {
+                display: none; /* Only shows the icon on mobile */
+              }
+              #zaraz-consent-trigger {
+                padding: 10px;
+                border-radius: 50%; /* Makes it a circle on mobile */
+              }
+            }
+            </style>
+            <div id="disqus_consent_area">
+                <p style="font-size:smaller">Comments are loaded via Disqus. By clicking the button below, you consent to Disqus collecting and processing your data, including potentially setting cookies. Please read the Disqus <a href="https://disqus.com/terms/" target="_blank">Terms of Service</a> and <a href="https://disqus.com/privacy/" target="_blank">Privacy Policy</a> for more information.</p>
+                <button id="load-comments-button" onclick="zaraz.consent.set({ 'zFUJ': true })">Load Disqus</button>
+            </div>
+            <div id="disqus_thread" style="display: none;"></div>
+          </div>
+        <!-- CommentBox.io -->
+        <% } else if (subRoot.note.hasLabel("enableCommentBox") && (!note.hasLabel("shareAlias") || note.getLabelValue("shareAlias") !== "about")) { %>
+          <div class="commentbox"></div>
+          <script src="https://unpkg.com/commentbox.io/dist/commentBox.min.js"></script>
+          <script>commentBox('<%= subRoot.note.getLabelValue("commentBoxID") %>')</script>
+        <% } %>
       <% } %>
       <% if (subRoot.note.hasLabel("enableReward") && note.hasLabel("showReward")) { %>
       <div id="rewardContainer">
@@ -392,9 +472,12 @@
               <div>
                 <% if (childNote.hasLabel("headerImage") && childNote.getLabelValue("headerImage")!=null) { %>
                 <div id="blogItemSummaryImgContain">
-                  <img src="<%= childNote.getLabelValue("headerImage") %>">
+                  <img src="<%=
+                  childNote.getLabelValue("headerImage").startsWith("https://")?
+                  childNote.getLabelValue("headerImage"):
+                  `/cdn-cgi/image/width=150,height=150,fit=cover,quality=75,onerror${childNote.getLabelValue("headerImage")}`
+                  %>">
                 </div>
-
                 <% } %>
                 <% if (childNote.hasLabel("summary") && childNote.getLabelValue("summary")!=null) { %>
                 <div id="blogItemSummary" style="font-size:90%;font-weight: 400;margin-top:5px;"><%= childNote.getLabelValue("summary") %></div>
@@ -437,14 +520,18 @@
               <% } %>
 
               <% if (subRoot.note.hasLabel("enableDisqus")) { %>
-              <div class="blogMetadateItems">
-                <svg xmlns="http://www.w3.org/2000/svg" width="0.8rem" height="0.8rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-circle">
-                  <path d="M1.5,5.3v9.54a3.82,3.82,0,0,0,3.82,3.82H7.23v2.86L13,18.66h5.73a3.82,3.82,0,0,0,3.82-3.82V5.3a3.82,3.82,0,0,0-3.82-3.82H5.32A3.82,3.82,0,0,0,1.5,5.3Z"></path>
-                </svg>
-                <div id="blogPostComments" style="margin-left: 0.3rem;">
-                  <a href="https://altrikb.trilium.cc/share/<%= childNote.noteId %>#disqus_thread">Link</a>
+              <a href="./<%= childNote.noteId %>">
+                <div class="blogMetadateItems">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="0.8rem" height="0.8rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-circle">
+                    <path d="M1.5,5.3v9.54a3.82,3.82,0,0,0,3.82,3.82H7.23v2.86L13,18.66h5.73a3.82,3.82,0,0,0,3.82-3.82V5.3a3.82,3.82,0,0,0-3.82-3.82H5.32A3.82,3.82,0,0,0,1.5,5.3Z"></path>
+                  </svg>
+                  <div id="blogPostComments" style="margin-left: 0.3rem;">
+                    <span class="disqus-comment-count"
+                    data-disqus-url="https://<%= siteHostname %>/share/<%= childNote.noteId
+                    %>">0</span>
+                  </div>
                 </div>
-              </div>
+              </a>
               <% } %>
             </div>
           </div>
@@ -453,8 +540,8 @@
       </nav>
       <% if(note.getLabelValue("categoryName")==="Home"){  %>
       <div id="morePost">
-        <div> =&nbspExplor more content at &nbsp</div>
-        <a href="./timeline">Archive</a>
+        <div> =&nbspExplor more at &nbsp</div>
+        <a href="./timeline">Timeline</a>
         <div> &nbsp= </div>
       </div>
       <% } %>
@@ -473,7 +560,7 @@
         })
       </script>
       <% } %>
-      <div id="onTop" title="前往顶部">
+      <div id="onTop" title="Back to Top">
         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up" style="
        color: #ffffff;
    ">
@@ -563,6 +650,7 @@
        const linkLabels = [
          "githubLink",
          "linkedinLink",
+         "bmcLink",
          "RSSLink",
          "zhihuLink",
          "sspaiLink",
@@ -655,6 +743,15 @@
           </svg>
         </a>
         <% } %>
+        <% if (subRoot.note.hasLabel("bmcLink") && subRoot.note.getLabelValue("bmcLink")!=null) { %>
+        <a class="platformStyle" target="_blank" rel="noopener" title="bmc" href="<%= subRoot.note.getLabelValue("bmcLink") %>"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <title>Buy Me a Coffee</title>
+            <g transform="matrix(0.0187646,0,0,0.0187646,3.71066,7.53447e-09)">
+              <path d="M191.809,236.571L216.173,239.625C291.189,248.322 366.643,252.712 442.162,252.771C461.135,252.806 480.114,252.57 499.098,252.066C536.356,251.102 573.539,249.077 610.648,245.992C629.322,244.443 647.968,242.608 666.586,240.486C676.038,239.419 685.478,238.272 694.908,237.044L697.884,236.649L700.895,236.236L701.033,236.236C702.75,235.997 704.398,235.408 705.877,234.504C707.355,233.6 708.632,232.401 709.626,230.982C710.621,229.562 711.312,227.954 711.657,226.255C712.002,224.557 711.994,222.806 711.632,221.111L696.852,152.285L696.731,151.752L694.649,142.03C693.015,134.408 691.673,126.338 688.713,119.077C679.422,96.193 652.597,94.713 631.708,90.17C617.61,87.142 603.438,84.567 589.191,82.445L584.305,81.739L577.043,80.81C570.746,80.036 564.448,79.347 558.116,78.694C528.676,75.7 499.115,73.962 469.538,73.101C408.614,71.08 347.624,73.23 286.994,79.537C280.026,80.363 272.988,81.619 265.985,82.083L265.882,82.083L254.663,83.804C243.479,85.559 232.33,87.572 221.266,89.929L221.025,89.929C219.737,90.215 218.584,90.932 217.758,91.961C216.932,92.99 216.482,94.271 216.482,95.59C216.482,96.91 216.932,98.19 217.758,99.219C218.584,100.249 219.737,100.965 221.025,101.251C233.792,103.953 246.697,106.189 259.602,108.134L265.917,109.046L267.241,109.235L273.333,110.009C279.733,110.801 286.134,111.506 292.552,112.177C306.661,113.611 320.805,114.793 334.983,115.722C366.058,117.769 397.219,118.647 428.363,118.647C460.057,118.595 491.768,117.58 523.394,115.378C537.515,114.414 551.601,113.175 565.653,111.661C572.455,110.915 579.257,110.113 586.06,109.252L588.193,108.942L597.055,107.618C617.134,104.538 634.891,112.453 641.499,132.859C647.022,149.928 634.995,174.43 616.257,177.304C600.347,179.758 584.408,181.863 568.44,183.618C503.87,190.464 438.887,192.586 374.007,189.968C315.471,187.851 256.126,182.879 198.829,170.215C178.251,165.846 158.192,159.317 138.985,150.737C124.239,144.078 110.336,134.012 102.128,119.765C90.583,99.703 95.745,74.822 111.558,58.734C124.445,45.64 141.91,38.224 158.858,32.047C205.229,15.167 256.625,9.799 305.422,5.36C370.983,-0.443 436.875,-1.536 502.591,2.09C557.342,5.033 613.297,10.195 666.517,24.235C677.826,27.038 688.965,30.484 699.88,34.559C721.182,42.801 742.604,55.258 752.928,76.56C760.86,92.424 763.269,111.85 766.314,129.143C769.842,149.257 773.076,169.423 776.518,189.572C778.376,200.55 780.751,212.388 788.786,220.01C796.821,227.633 808.711,229.215 819.19,232.898C851.882,244.409 866.215,274.503 872.53,306.352L879.567,341.849C888.153,376.021 883.318,409.918 859.023,435.916C843.761,452.245 823.25,459.386 801.794,463.567C796.352,464.617 791.392,467.391 787.649,471.478C783.905,475.565 781.577,480.749 781.009,486.263L769.601,597.451L744.72,840.061L721.87,1062.8L714.987,1130.13C706.952,1207.85 650.653,1257.95 575.615,1271.72C524.977,1281.05 472.979,1279.07 421.497,1278.24C381.337,1277.59 340.799,1276.28 301.224,1269.91C233.465,1259.04 178.749,1220.43 170.885,1148.78C169.44,1135.67 168.15,1122.52 166.773,1109.41L145.385,904.104L120.298,663.214L108.168,546.76C106.069,526.629 126.407,511.418 144.301,510.627C165.207,509.681 178.473,528.023 180.435,546.76L181.244,554.538L197.607,711.615L222.9,954.381L236.545,1085.37C239.986,1118.36 243.479,1156.51 268.756,1180.87C297.525,1208.61 343.173,1212.05 380.443,1211.84C415.355,1211.65 450.249,1213.2 485.161,1213.01C516.652,1212.73 548.022,1209.06 578.73,1202.07C612.248,1194.45 635.218,1173.61 641.757,1139.68C645.904,1118.1 646.213,1095.58 648.416,1073.74L655.298,1007.2L679.542,770.874L702.633,545.797L706.453,508.665C706.846,504.836 706.377,500.967 705.08,497.342C703.784,493.718 701.694,490.429 698.962,487.717C696.23,485.005 692.926,482.938 689.292,481.668C685.658,480.398 681.786,479.958 677.959,480.378C665.708,481.732 653.44,482.982 641.155,484.129C490.294,498.178 338.361,495.975 187.971,477.556C149.687,472.807 111.506,467.232 73.531,460.35C33.165,453.054 5.101,420.431 0.473,380.288C-1.678,361.688 4,342.193 7.648,324.075C11.296,305.956 13.722,287.597 21.878,270.735C29.806,254.916 42.369,241.891 57.891,233.397C76.801,223.073 96.794,221.352 117.7,224.793C134.993,227.598 152.216,230.798 169.543,233.397L185.029,235.651L191.809,236.571C193.879,236.848 194.859,236.963 191.809,236.571ZM74.504,381.94C74.417,382.009 74.925,382.576 75.734,383.334C75.2,382.508 74.676,381.819 74.504,381.94ZM80.663,387.979L81.033,388.341C80.965,388.22 80.775,388.1 80.775,387.979L80.663,387.979ZM800.787,382.989C806.147,377.915 809.359,370.984 809.778,363.615C811.137,346.701 809.967,326.673 801.175,311.703C788.356,289.731 764.835,296.871 743.619,300.674C719.805,304.941 695.905,308.686 671.92,311.91C540.325,329.529 405.925,331.405 273.745,319.36C242.774,316.538 211.917,312.781 181.175,308.09C155.64,304.218 125.667,293.327 99.857,296.355C83.322,298.334 77.988,316.865 75.2,330.768C72.155,345.944 66.408,371.237 78.108,383.798C84.32,390.457 94.11,392.109 103.144,393.382C195.336,406.407 287.476,416.749 380.597,419.932C510.713,424.199 641.292,414.529 769.996,395.43C781.473,393.726 793.08,390.319 800.787,382.989ZM72.43,365.835C72.757,365.68 72.155,368.484 71.897,369.792C71.845,367.813 71.948,366.058 72.43,365.835ZM76.56,384.641C77.695,386.689 77.3,385.897 76.56,384.641ZM430.019,1186.18L427.988,1187.87L427.076,1188.45C427.852,1187.46 428.864,1186.68 430.019,1186.18ZM472.623,590.836C513.591,573.303 549.054,558.144 593.068,558.161C618.516,558.161 641.091,563.237 663.459,570.876L613.406,1101.08C611.752,1121.13 602.619,1139.82 587.819,1153.45C573.019,1167.08 553.636,1174.65 533.516,1174.65C533.516,1174.65 462.161,1178.09 438.365,1178.09C416.254,1178.09 349.992,1174.65 349.992,1174.65C329.87,1174.65 310.482,1167.09 295.679,1153.46C280.876,1139.83 271.74,1121.13 270.086,1101.08L223.353,621.274C250.58,628.868 278.71,632.746 306.976,632.802C374.546,632.802 426.682,610.503 472.623,590.836Z" style="fill:rgb(13,12,34);"/>
+            </g>
+          </svg>
+        </a>
+        <% } %>
       </div>
       <% } %>
       <div id="announcement" class="bloggerInfoCardStyle">
@@ -698,15 +795,57 @@
         <hr>
         <div>
           <div>
-            <span>This blog has been running for：<%= Math.ceil((new Date() - new Date(subRoot.note.getLabelValue("blogStartTime"))) / (24 * 60 * 60 * 1000)) %> days</span>
+            <span>This blog has been running for: <%= Math.ceil((new Date() - new Date(subRoot.note.getLabelValue("blogStartTime"))) / (24 * 60 * 60 * 1000)) %> days</span>
     </div>
     <!-- 开源不易，请勿注释以下内容 -->
-    <span>Powered by <a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/zadam/trilium">Trilium</a><b> X </b><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/dvai/Ankia-Theme">Ankia</a></span>
+    <div>
+      <span>
+        Powered by
+        <a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/zadam/trilium">Trilium</a>
+        <b> X </b>
+        <a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/dvai/Ankia-Theme">Ankia</a>
+      </span>
+    </div>
+    <div>
+      <span>
+        Background:
+        <a href="https://www.flickr.com/photos/maitreyoda/6242165292" title="Chamrousse 1650">Chamrousse 1650</a>
+        &nbsp;» par
+        <a href="https://www.flickr.com/photos/maitreyoda/">Rog01</a>
+        ,
+        <a href="https://creativecommons.org/licenses/by-sa/2.0/deed.fr" rel="license noopener noreferrer">CC BY-SA 2.0</a>
+      </span>
+    </div>
   </div>
   <div>
     <span>Copyright © <%= subRoot.note.getLabelValue("blogStartTime").slice(0,4) %>-<%= new Date().getFullYear() %>. All Rights Reserved.</span>
   </div>
   </div>
+  <script>
+    const messageElements = document.querySelectorAll('#blogItemSummary');
+
+    function updateText() {
+      messageElements.forEach(element => {
+        const fullText = element.getAttribute('data-fulltext') || element.textContent;
+        // Store original fullText in a data attribute if not already stored
+        if (!element.hasAttribute('data-fulltext')) {
+          element.setAttribute('data-fulltext', fullText);
+        }
+        if (window.matchMedia("(max-width: 600px)").matches) {
+          element.textContent = fullText.substring(0, 120) + "...";
+        } else {
+          element.textContent = fullText;
+        }
+      });
+    }
+
+    // Initial run
+    updateText();
+
+    // Update on resize
+    window.addEventListener('resize', updateText);
+  </script>
+  <script>hljs.highlightAll();</script>
 </body>
 
 </html>
