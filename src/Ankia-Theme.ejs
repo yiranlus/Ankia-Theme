@@ -75,10 +75,10 @@
   <link rel="shortcut icon" href="../favicon.ico">
   <% } %>
   <% for (const cssRelation of note.getRelations("shareCss")) { %>
-  <link href="<%= cssRelation.value %>" rel="stylesheet">
+  <link href="api/notes/<%= cssRelation.value %>/download" rel="stylesheet">
   <% } %>
   <% for (const jsRelation of note.getRelations("shareJs")) { %>
-  <script type="module" src="<%= jsRelation.value %>"></script>
+  <script type="module" src="api/notes/<%= jsRelation.value %>/download"></script>
   <% } %>
   <% if (note.isLabelTruthy('shareDisallowRobotIndexing')) { %>
   <meta name="robots" content="noindex,follow" />
@@ -87,11 +87,10 @@
   <% if (subRoot.note.hasLabel("enableTwikoo")) { %>
     <script src="https://lib.baomitu.com/twikoo/1.6.7/twikoo.all.min.js"></script>
   <% } %>
-  <% if (subRoot.note.hasLabel("enableDisqus")) {
-        const disqusHostname =  subRoot.note.getLabelValue("disqusHostname");
-  %>
-    <script id="dsq-count-scr" src="https//<%= disqusHostname %>/count.js" async></script>
+  <% if (subRoot.note.hasLabel("enableDisqus")) { %>
+    <script id="dsq-count-scr" src="//ylus.disqus.com/count.js" async></script>
   <% } %>
+  <meta name="google-site-verification" content="pE6NuRi8vQmlSlWPap4d9fazuxY5ezGmFAyXIXY0onk" />
   <script defer type="text/javascript" src="<%= note.getRelation('umamiJS').value %>" data-website-id="7c04013f-0910-4a82-ac72-a14579ba51a7"></script>
 </head>
 
@@ -367,60 +366,32 @@
         <%- content %>
       </div>
         <!-- Disqus -->
-        <% if ((subRoot.note.hasLabel("enableDisqus") &&
-        !note.hasLabel("disableDisqus")) && (!note.hasLabel("shareAlias") ||
-        note.getLabelValue("shareAlias") !== "about")) { %>
+        <% if ((subRoot.note.hasLabel("enableDisqus") && !note.hasLabel("disableDisqus")) && (!note.hasLabel("shareAlias") || note.getLabelValue("shareAlias") !== "about")) { %>
           <div id="disqus_container">
-            <button id="zaraz-consent-trigger" onclick="zaraz.consent.modal = true" aria-label="Privacy Settings">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-              </svg>
-              <span>Privacy</span>
-            </button>
-            <style>
-            #zaraz-consent-trigger {
-              position: fixed;
-              bottom: 20px;
-              left: 20px;
-              z-index: 9999; /* Ensures it stays on top of other elements */
-
-              display: flex;
-              align-items: center;
-              gap: 8px;
-
-              padding: 10px 16px;
-              background-color: #000000; /* Adjust to match your brand */
-              color: #ffffff;
-              border: none;
-              border-radius: 8px;
-              cursor: pointer;
-              font-family: sans-serif;
-              font-size: 14px;
-              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-              transition: transform 0.2s ease, background-color 0.2s ease;
-            }
-
-            #zaraz-consent-trigger:hover {
-              background-color: #333333;
-              transform: translateY(-2px);
-            }
-
-            /* Hide on very small screens if it overlaps content (optional) */
-            @media (max-width: 480px) {
-              #zaraz-consent-trigger span {
-                display: none; /* Only shows the icon on mobile */
-              }
-              #zaraz-consent-trigger {
-                padding: 10px;
-                border-radius: 50%; /* Makes it a circle on mobile */
-              }
-            }
-            </style>
             <div id="disqus_consent_area">
                 <p style="font-size:smaller">Comments are loaded via Disqus. By clicking the button below, you consent to Disqus collecting and processing your data, including potentially setting cookies. Please read the Disqus <a href="https://disqus.com/terms/" target="_blank">Terms of Service</a> and <a href="https://disqus.com/privacy/" target="_blank">Privacy Policy</a> for more information.</p>
-                <button id="load-comments-button" onclick="zaraz.consent.set({ 'zFUJ': true })">Load Disqus</button>
+                <button id="load-comments-button">Load Comments</button>
             </div>
             <div id="disqus_thread" style="display: none;"></div>
+            <script>
+              document.getElementById('load-comments-button').addEventListener('click', function() {
+                // 1. Hide the consent area and show the Disqus thread div
+                document.getElementById('disqus_consent_area').style.display = 'none';
+                document.getElementById('disqus_thread').style.display = 'block';
+
+                // 2. Define the Disqus configuration variables (replace with your actual page data)
+                var disqus_config = function () {
+                  this.page.url = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                  this.page.identifier = "<%= note.noteId %>";
+                };
+
+                // 3. Create and append the Disqus embed script
+                var d = document, s = d.createElement('script');
+                s.src = '<%= subRoot.note.getLabelValue("disqusEmbedJS") %>';
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+              });
+            </script>
           </div>
         <!-- CommentBox.io -->
         <% } else if (subRoot.note.hasLabel("enableCommentBox") && (!note.hasLabel("shareAlias") || note.getLabelValue("shareAlias") !== "about")) { %>
@@ -472,11 +443,7 @@
               <div>
                 <% if (childNote.hasLabel("headerImage") && childNote.getLabelValue("headerImage")!=null) { %>
                 <div id="blogItemSummaryImgContain">
-                  <img src="<%=
-                  childNote.getLabelValue("headerImage").startsWith("https://")?
-                  childNote.getLabelValue("headerImage"):
-                  `/cdn-cgi/image/width=150,height=150,fit=cover,quality=75,onerror${childNote.getLabelValue("headerImage")}`
-                  %>">
+                  <img src="<%= childNote.getLabelValue("headerImage") %>">
                 </div>
                 <% } %>
                 <% if (childNote.hasLabel("summary") && childNote.getLabelValue("summary")!=null) { %>
