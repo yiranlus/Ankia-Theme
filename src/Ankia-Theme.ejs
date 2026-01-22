@@ -53,9 +53,7 @@
   <meta name="theme-color" content="#5986D1">
   <meta name="description" content="<%= shortSiteDescription %>">
   <link rel="canonical" href="<%= postURL %>">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7/css/fontawesome.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7/css/brands.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7/css/solid.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2/css/boxicons.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.min.css" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.27/dist/katex.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/styles/default.min.css">
@@ -70,6 +68,7 @@
   <script defer type="text/javascript" src="<%= note.getRelation('umamiJS').value %>" data-website-id="7c04013f-0910-4a82-ac72-a14579ba51a7"></script>
 
   <link rel="shortcut icon" href="<%= faviconUrl %>">
+
   <%
   for (const url of cssToLoad) { %>
     <link href="<%= url %>" rel="stylesheet"><%
@@ -129,7 +128,7 @@ content = content.replaceAll(headingRe, (...match) => {
       </div> -->
       <div class="navigationItemsStyle">
         <a id="category" title="Category" class="menuLinkStyle">
-          Categories<i class="fa-solid fa-angle-down"></i>
+          Categories<i class='bx bx-chevron-down'></i>
         </a>
         <div id="categoryDropDown" class="dropDownStyle">
           <% subRoot.note.getVisibleChildNotes()[1].getVisibleChildNotes().forEach((childNote)=> { %>
@@ -145,7 +144,7 @@ content = content.replaceAll(headingRe, (...match) => {
         <%
         if (childNote.hasVisibleChildren()) { %>
           <a title="<%=childNote.title%>" class="menuLinkStyle">
-            <%=childNote.title%><i class="fa-solid fa-angle-down"></i>
+            <%=childNote.title%><i class='bx bx-chevron-down'></i>
           </a>
           <div class="dropDownStyle">
           <%
@@ -170,11 +169,11 @@ content = content.replaceAll(headingRe, (...match) => {
 
       <div class="navigationItemsStyle">
         <div id="searchButton" class="navigationItemsStyle menuLinkStyle" style="margin:0px;cursor: pointer;">
-          <i class="fa-solid fa-magnifying-glass"></i>
+          <i class='bx bx-search' ></i>
         </div>
       </div>
       <div id="toggleMenuButton">
-        <i class="fa-solid fa-bars"></i>
+        <i class='bx bx-menu' ></i>
       </div>
     </div>
   </div>
@@ -197,7 +196,7 @@ content = content.replaceAll(headingRe, (...match) => {
               tags.forEach((tag) => { %>
                 <a href="./tag_<%= tag %>">
                   <div class="blogMetadateItems categoryBadge shakeStyle">
-                    <i class="fa-solid fa-tag"></i>
+                    <i class='bx bxs-purchase-tag' ></i>
                     <div style="margin-left: 0.3rem;"><%= tag  %></div>
                   </div>
                 </a><%
@@ -206,12 +205,12 @@ content = content.replaceAll(headingRe, (...match) => {
             </div>
             <div style="display: flex;margin-left: 1em;">
               <div class="blogMetadate" title="Word Count">
-                <i class="fa-regular fa-pen-to-square"></i>
+                <i class='bx bx-edit' ></i>
                 <span id="articleWordCount" style="padding-left: 0.3em;">-</span>
                 <span>w</span>
               </div>
               <div class="blogMetadate" title="Date Published">
-                <i class="fa-solid fa-calendar"></i>
+                <i class='bx bx-calendar' ></i>
                 <span style="padding-left: 0.3em;"><%= note.getLabelValue("date").split("T")[0] %></span>
               </div>
             </div>
@@ -284,7 +283,7 @@ content = content.replaceAll(headingRe, (...match) => {
               note.getLabelValue("shareAlias") !== "about")) { %>
             <div id="disqus_container">
               <button id="zaraz-consent-trigger" onclick="zaraz.consent.modal = true" aria-label="Privacy Settings">
-                <i class="fa-solid fa-shield-halved"></i>
+                <i class='bx bxs-shield-alt-2' ></i>
                 <span>Privacy</span>
               </button>
               <style>
@@ -392,7 +391,7 @@ content = content.replaceAll(headingRe, (...match) => {
                     tags.forEach((tag) => { %>
                       <a href="./tag_<%= tag %>">
                         <div class="blogMetadateItems categoryBadge shakeStyle">
-                          <i class="fa-solid fa-tag"></i>
+                          <i class='bx bxs-purchase-tag-alt' ></i>
                           <div style="margin-left: 0.3rem;"><%= tag  %></div>
                         </div>
                       </a><%
@@ -400,7 +399,7 @@ content = content.replaceAll(headingRe, (...match) => {
                   } %>
                   <a href="./category_<%= childNote.getLabelValue("category") %>">
                     <div class="blogMetadateItems categoryBadge shakeStyle">
-                      <i class="fa-solid fa-folder"></i>
+                      <i class='bx bx-folder' ></i>
                       <div style="margin-left: 0.3rem;"><%= childNote.getLabelValue("category")  %></div>
                     </div>
                   </a>
@@ -410,7 +409,7 @@ content = content.replaceAll(headingRe, (...match) => {
                         childNote.getLabelValue("date") != null) {
                     const postDate = childNote.getLabelValue("date"); %>
                     <div class="blogMetadateItems">
-                      <i class="fa-solid fa-clock-rotate-left"></i>
+                      <i class='bx bx-timer'></i>
                       <div id="blogPostDate" style="margin-left: 0.3rem;" blogpostdate="<%= postDate %>"><%= getDaysAgo(postDate.split("T")[0])%></div>
                     </div><%
                   }
@@ -418,7 +417,7 @@ content = content.replaceAll(headingRe, (...match) => {
                   if (subRoot.note.hasLabel("enableDisqus")) { %>
                     <a href="./<%= childNote.noteId %>">
                       <div class="blogMetadateItems">
-                        <i class="fa-solid fa-comments"></i>
+                        <i class='bx bx-conversation' ></i>
                         <div id="blogPostComments" style="margin-left: 0.3rem;">
                           <span class="disqus-comment-count" data-disqus-url="https://<%= siteHostname %>/share/<%= childNote.noteId%>">0</span>
                         </div>
@@ -443,7 +442,7 @@ content = content.replaceAll(headingRe, (...match) => {
       } %>
 
       <div id="onTop" title="Back to Top">
-        <i class="fa-solid fa-arrow-up"></i>
+        <i class='bx bxs-chevron-up' ></i>
       </div>
     </div>
 
@@ -547,35 +546,35 @@ content = content.replaceAll(headingRe, (...match) => {
           if (subRoot.note.hasLabel("githubLink") &&
                 subRoot.note.getLabelValue("githubLink") != null) { %>
             <a class="platformStyle" target="_blank" rel="noopener" title="GitHub" href="<%= subRoot.note.getLabelValue("githubLink") %>">
-              <i class="fa-brands fa-github"></i>
+              <i class='bx bxl-github' ></i>
             </a><%
           }
 
           if (subRoot.note.hasLabel("RSSLink") &&
                 subRoot.note.getLabelValue("RSSLink") != null) { %>
             <a class="platformStyle" target="_blank" rel="noopener" title="RSS" href="<%= subRoot.note.getLabelValue("RSSLink") %>">
-              <i class="fa-solid fa-rss"></i>
+              <i class='bx bx-rss' ></i>
             </a><%
           }
 
           if (subRoot.note.hasLabel("linkedinLink") &&
                 subRoot.note.getLabelValue("linkedinLink") != null) { %>
             <a class="platformStyle" target="_blank" rel="noopener" title="LinkedIn" href="<%= subRoot.note.getLabelValue("linkedinLink") %>">
-              <i class="fa-brands fa-linkedin"></i>
+              <i class='bx bxl-linkedin' ></i>
             </a><%
           }
 
           if (subRoot.note.hasLabel("mailLink") &&
                 subRoot.note.getLabelValue("mailLink") != null) { %>
             <a class="platformStyle" target="_blank" rel="noopener" title="EMail" href="mailto:<%= subRoot.note.getLabelValue("mailLink") %>">
-              <i class="fa-solid fa-at"></i>
+              <i class='bx bx-at'></i>
             </a><%
           }
 
           if (subRoot.note.hasLabel("bmcLink") &&
                 subRoot.note.getLabelValue("bmcLink") != null) { %>
             <a class="platformStyle" target="_blank" rel="noopener" title="Buy Me a Coffee" href="<%= subRoot.note.getLabelValue("bmcLink") %>">
-              <i class="fa-solid fa-mug-hot"></i>
+              <i class='bx bxs-coffee' ></i>
             </a><%
           } %>
         </div><%
