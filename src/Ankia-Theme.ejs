@@ -5,7 +5,7 @@
     Licensed Apache-2.0 © 东东
  -->
 <!DOCTYPE html>
-<html lang="en">
+
 <%
   const bloggerName =  subRoot.note.getLabelValue("bloggerName") ;
   const siteName =  subRoot.note.getLabelValue("siteName");
@@ -14,6 +14,8 @@
   const shortSiteDescription = siteDescription?.substring(0, 150);
   const bloggerAvatar  = `api/images/${subRoot.note.getRelation("bloggerAvatar").value}/Avatar`
   var count = 0;
+
+  var postURL = `https://${siteHostname}/share/${note.noteId}`;
 
   function getDaysAgo(dateStr) {
     const date = new Date(dateStr);
@@ -38,6 +40,7 @@
   }
 %>
 
+<html lang="<%= note.getLabelValue('lang')?note.getLabelValue('lang'):'en' %>">
 <head>
   <meta charset="UTF-8">
   <meta name="referrer" content="no-referrer">
@@ -49,80 +52,75 @@
   <meta name="format-detection" content="telephone=no">
   <meta name="theme-color" content="#5986D1">
   <meta name="description" content="<%= shortSiteDescription %>">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.css" integrity="sha384-WcoG4HRXMzYzfCgiyfrySxx90XSl2rxY5mnVY5TwtWE6KLrArNKn0T/mOgNL0Mmi" crossorigin="anonymous">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.js" integrity="sha384-J+9dG2KMoiR9hqcFao0IBLwxt6zpcyN68IgwzsCSkbreXUjmNVRhPFTssqdSGjwQ" crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        renderMathInElement(document.body, {
-          // customised options
-          // • auto-render specific keys, e.g.:
-          delimiters: [
-              {left: '\\(', right: '\\)', display: false},
-              {left: '\\[', right: '\\]', display: true}
-          ],
-          // • rendering keys, e.g.:
-          throwOnError : false
-        });
-    });
-</script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
-  <link rel="stylesheet" href="https://npm.elemecdn.com/lxgw-wenkai-screen-webfont/style.css" media="print" onload="this.media='all'">
-  <% if (note.hasRelation("shareFavicon")) { %>
-  <link rel="shortcut icon" href="<%= note.getRelation("shareFavicon").value %>">
-  <% } else { %>
-  <link rel="shortcut icon" href="../favicon.ico">
-  <% } %>
-  <% for (const cssRelation of note.getRelations("shareCss")) { %>
-  <link href="api/notes/<%= cssRelation.value %>/download" rel="stylesheet">
-  <% } %>
-  <% for (const jsRelation of note.getRelations("shareJs")) { %>
-  <script type="module" src="api/notes/<%= jsRelation.value %>/download"></script>
-  <% } %>
-  <% if (note.isLabelTruthy('shareDisallowRobotIndexing')) { %>
-  <meta name="robots" content="noindex,follow" />
-  <% } %>
-  <%- header %>
-  <% if (subRoot.note.hasLabel("enableTwikoo")) { %>
-    <script src="https://lib.baomitu.com/twikoo/1.6.7/twikoo.all.min.js"></script>
-  <% } %>
-  <% if (subRoot.note.hasLabel("enableDisqus")) { %>
-    <script id="dsq-count-scr" src="//ylus.disqus.com/count.js" async></script>
-  <% } %>
-  <meta name="google-site-verification" content="pE6NuRi8vQmlSlWPap4d9fazuxY5ezGmFAyXIXY0onk" />
+  <link rel="canonical" href="<%= postURL %>">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7/css/fontawesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7/css/brands.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7/css/solid.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web/style.min.css" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.27/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/styles/default.min.css">
+
+  <%
+  if (subRoot.note.hasLabel("enableDisqus")) {
+    const disqusHostname =  subRoot.note.getLabelValue("disqusHostname"); %>
+    <script id="dsq-count-scr" src="https://<%= disqusHostname %>/count.js" async></script><%
+  } %>
+
+  <meta name="google-site-verification" content="iM00A0XoRL2tuRTmctSudVduNCAyIe0hHXGc7l5BYBo" />
   <script defer type="text/javascript" src="<%= note.getRelation('umamiJS').value %>" data-website-id="7c04013f-0910-4a82-ac72-a14579ba51a7"></script>
+
+  <% /* Default Trilium parameter setup */ %>
+  <%
+  if (note.hasRelation("shareFavicon")) { %>
+    <link rel="shortcut icon" href="<%= note.getRelation('shareFavicon').value %>"><%
+  } else { %>
+    <link rel="shortcut icon" href="../favicon.ico">
+  <%
+  } %>
+
+  <%
+  for (const url of cssToLoad) { %>
+    <link href="<%= url %>" rel="stylesheet"><%
+  }
+  for (const url of jsToLoad) { %>
+    <script type="module" src="<%= url %>"></script><%
+  }
+  if (note.hasLabel("shareDisallowRobotIndexing")) { %>
+    <meta name="robots" content="noindex,follow" /><%
+  } %>
+  <%- header %>
 </head>
 
 <%
-  const headingRe = /(<h[1-6]\s*(?:[^>]+\s*)*>)(.+?)(<\/h[1-6]>)/g;
-  const headingMatches = [...content.matchAll(headingRe)];
-  const slugify = (text) => text.replace(/\s/g, " ");
-  content = content.replaceAll(headingRe, (...match) => {
-      const regex = /(<([^>]+)>)/ig;
-      const tocTextContent = slugify(match[2]).replace(regex, '')
-      match[0] = match[0].replace(match[3], `<a id="${tocTextContent}" class="toc-anchor" name="${tocTextContent}" href="#${tocTextContent}">※</a>${match[3]}`);
-      return match[0];
-  }).replaceAll(/class="[^"]*language-text-x-(\w+)[^"]*"/g , (...match) => {
-      match[0] = match[0].replace("-text-x", "");
-      return match[0];
-  }).replaceAll( /class="[^"]*language-text-(\w+)[^"]*"/g , (...match) => {
-      match[0] = match[0].replace("-text", "");
-      return match[0];
-  }).replaceAll( /class="[^"]*language-application-x-(\w+)[^"]*"/g , (...match) => {
-      match[0] = match[0].replace("-application-x", "");
-      return match[0];
-  }).replaceAll( /class="[^"]*language-application-(\w+)[^"]*"/g , (...match) => {
-      match[0] = match[0].replace("-application", "");
-      return match[0];
-  }).replaceAll(
-    "language-application-javascript-env-backend", "language-javascript"
-  ).replaceAll(
-    "language-application-javascript-env-frontend" , "language-javascript"
-  );
+const headingRe = /(<h[1-6]\s*(?:[^>]+\s*)*>)(.+?)(<\/h[1-6]>)/g;
+const headingMatches = [...content.matchAll(headingRe)];
+const slugify = (text) => text.replace(/\s/g, " ");
+content = content.replaceAll(headingRe, (...match) => {
+  const regex = /(<([^>]+)>)/ig;
+  const tocTextContent = slugify(match[2]).replace(regex, '')
+  match[0] = match[0].replace(match[3], `<a id="${tocTextContent}" class="toc-anchor" name="${tocTextContent}" href="#${tocTextContent}">※</a>${match[3]}`);
+  return match[0];
+}).replaceAll(/class="[^"]*language-text-x-(\w+)[^"]*"/g , (...match) => {
+  match[0] = match[0].replace("-text-x", "");
+  return match[0];
+}).replaceAll( /class="[^"]*language-text-(\w+)[^"]*"/g , (...match) => {
+  match[0] = match[0].replace("-text", "");
+  return match[0];
+}).replaceAll( /class="[^"]*language-application-x-(\w+)[^"]*"/g , (...match) => {
+  match[0] = match[0].replace("-application-x", "");
+  return match[0];
+}).replaceAll( /class="[^"]*language-application-(\w+)[^"]*"/g , (...match) => {
+  match[0] = match[0].replace("-application", "");
+  return match[0];
+}).replaceAll(
+  "language-application-javascript-env-backend", "language-javascript"
+).replaceAll(
+  "language-application-javascript-env-frontend" , "language-javascript"
+);
 %>
 
-<body data-note-id="<%= note.noteId %>" data-ancestor-note-id="<%= subRoot.note.getVisibleChildNotes()[5].noteId %>">
+
+<body data-note-id="<%= note.noteId %>" class="type-<%= note.type %>" data-ancestor-note-id="<%= subRoot.note.getVisibleChildNotes()[5].noteId %>">
   <div id="mobileMenuContainer"></div>
   <div id="globalBackground">
     <img id="globalBackgroundImg" src="api/images/<%= subRoot.note.getRelation("homepageBG").value %>/Background" style="position: fixed;margin-left: auto;margin-right: auto;display: flex;-o-object-fit: cover;object-fit: cover;" width="auto" height="100%">
@@ -130,9 +128,7 @@
   </div>
   <div id="navigationBar" class="scroll-hide">
     <div id="siteTitle">
-      <!-- 屏蔽icon
-       <img src="api/images/<%= subRoot.note.getRelation("shareFavicon").value %>/logo.svg" alt="Logo" />
-       -->
+      <!-- <img src="api/images/<%= subRoot.note.getRelation("shareFavicon").value %>/logo.svg" alt="Logo" /> -->
       <a href="./" title="Back to Home"><%= siteName %></a>
     </div>
     <div id="navigationItems">
@@ -140,13 +136,8 @@
         <a href="./" title="Home" class="menuLinkStyle">Home</a>
       </div> -->
       <div class="navigationItemsStyle">
-        <a id="category" title="Category" class="menuLinkStyle">Categories<svg
-           xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="3" stroke-linecap="round"
-           stroke-linejoin="round"
-           style=" width: 10px; height: 10px; margin-left: 2px;">
-            <path d="M3 8L12 17L21 8"></path>
-          </svg>
+        <a id="category" title="Category" class="menuLinkStyle">
+          Categories<i class="fa-solid fa-angle-down"></i>
         </a>
         <div id="categoryDropDown" class="dropDownStyle">
           <% subRoot.note.getVisibleChildNotes()[1].getVisibleChildNotes().forEach((childNote)=> { %>
@@ -159,39 +150,40 @@
 
       <% subRoot.note.getVisibleChildNotes()[3].getVisibleChildNotes().forEach((childNote) =>{ %>
       <div class="navigationItemsStyle">
-        <% if (childNote.hasVisibleChildren()){ %>
-        <a title="<%=childNote.title%>" class="menuLinkStyle"><%=childNote.title%><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="width: 10px; height: 10px; margin-left: 2px;">
-            <path d="M3 8L12 17L21 8"></path>
-          </svg></a>
-        <div class="dropDownStyle">
-          <% childNote.getVisibleChildNotes().forEach((subOption)=>{ %>
-          <% if (subOption.hasLabel("shareExternalLink")) {%>
-          <a href="<%=subOption.getLabelValue("shareExternalLink")%>" title="<%=subOption.title%>" class="menuLinkStyle" target="_blank" rel="noopener"><%=subOption.title%></a>
-          <%}else {%>
-          <a href="<%=subOption.shareId%>" title="<%=subOption.title%>" class="menuLinkStyle"><%=subOption.title%></a>
-          <%}}) %>
-        </div>
-        <%}else{%>
-        <% if (childNote.hasLabel("shareExternalLink")) {%>
-        <a href="<%=childNote.getLabelValue("shareExternalLink")%>" title="<%=childNote.title%>" class="menuLinkStyle" target="_blank" rel="noopener"><%=childNote.title%></a>
-        <%}else{%>
-        <a href="<%=childNote.shareId%>" title="<%=childNote.title%>" class="menuLinkStyle"><%=childNote.title%></a>
-        <%}}%>
-      </div>
-      <%})%>
+        <%
+        if (childNote.hasVisibleChildren()) { %>
+          <a title="<%=childNote.title%>" class="menuLinkStyle">
+            <%=childNote.title%><i class="fa-solid fa-angle-down"></i>
+          </a>
+          <div class="dropDownStyle">
+          <%
+          childNote.getVisibleChildNotes().forEach((subOption) => { %>
+            <%
+            if (subOption.hasLabel("shareExternalLink")) {%>
+              <a href="<%=subOption.getLabelValue("shareExternalLink")%>" title="<%=subOption.title%>" class="menuLinkStyle" target="_blank" rel="noopener"><%=subOption.title%></a><%
+            } else { %>
+              <a href="<%=subOption.shareId%>" title="<%=subOption.title%>" class="menuLinkStyle"><%=subOption.title%></a><%
+            }
+          }) %>
+          </div><%
+        } else { %><%
+          if (childNote.hasLabel("shareExternalLink")) { %>
+            <a href="<%=childNote.getLabelValue("shareExternalLink")%>" title="<%=childNote.title%>" class="menuLinkStyle" target="_blank" rel="noopener"><%=childNote.title%></a><%
+          } else { %>
+            <a href="<%=childNote.shareId%>" title="<%=childNote.title%>" class="menuLinkStyle"><%=childNote.title%></a><%
+          }
+        } %>
+        </div><%
+      }) %>
+
       <div class="navigationItemsStyle">
         <div id="searchButton" class="navigationItemsStyle menuLinkStyle" style="margin:0px;cursor: pointer;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
+          <i class="fa-solid fa-magnifying-glass"></i>
         </div>
       </div>
-      <div id="toggleMenuButton"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
-          <line x1="3" y1="12" x2="21" y2="12" />
-          <line x1="3" y1="6" x2="21" y2="6" />
-          <line x1="3" y1="18" x2="21" y2="18" />
-        </svg></div>
+      <div id="toggleMenuButton">
+        <i class="fa-solid fa-bars"></i>
+      </div>
     </div>
   </div>
   <div style="display: flex;justify-content: center;">
@@ -203,590 +195,439 @@
   <div id="layout">
     <div id="main">
       <h1 id="title"><%= note.title %></h1>
-      <% if (note.hasLabel("date") && note.getLabelValue('date')!=null) { %>
-      <div id="contentHeader">
-        <div class="blogMetadate">
-          <% const tags = note.getLabelValues("tags");
-                          if (tags!=null ||tags!=undefined ||tags!=""){
-                              tags.forEach((tag)=>{ %>
-          <a href="./tag_<%= tag %>">
-            <div class="blogMetadateItems categoryBadge shakeStyle">
-              <svg xmlns="http://www.w3.org/2000/svg" width="0.8rem" height="0.8rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag">
-                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-                <line x1="7" y1="7" x2="7.01" y2="7"></line>
-              </svg>
-              <div style="margin-left: 0.3rem;"><%= tag  %></div>
-            </div>
-          </a>
-          <%})} %>
-        </div>
-        <div style="display: flex;margin-left: 1em;">
-          <% if (subRoot.note.hasLabel("enableVisitors")) { %>
-          <div class="blogMetadate" title="阅读量">
-            <svg xmlns="http://www.w3.org/2000/svg" width="0.8rem" height="0.8rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-            <span id="twikoo_visitors" style="padding-left: 0.3em;">-</span>
-          </div>
-          <% } %>
-
-          <div class="blogMetadate" title="Word Count">
-            <svg xmlns="http://www.w3.org/2000/svg" width="0.8rem" height="0.8rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-            </svg>
-            <span id="articleWordCount" style="padding-left: 0.3em;">-</span>
-            <span>w</span>
-          </div>
-          <div class="blogMetadate" title="Date Published">
-            <svg xmlns="http://www.w3.org/2000/svg" width="0.8rem" height="0.8rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg></span>
-            <span style="padding-left: 0.3em;"><%= note.getLabelValue("date").split("T")[0] %>
-          </div>
-        </div>
-      </div>
-      <% } %>
-      <% if (note.hasLabel("pageUrl")) { %>
-      <div id="noteClippedFrom">This note was originally clipped from <a href="<%= note.getLabelValue("pageUrl") %>"><%= note.getLabelValue("pageUrl") %></a></div>
-      <% } %>
-
-      <% if (!isEmpty) { %>
-
-      <% if (note.getLabelValue("categoryName") === "Links") { %>
-      <div class="fLinkContainer">
-        <%
-          const fLnksDate = content.replace(/<\/?pre>/g, '').replace(/[\n\s]/g, " ");
-          const fLinks = JSON.parse(fLnksDate);
-
-          for (let key in fLinks) {%>
-        <a class="fLink cf-friends-link" href="<%= fLinks[key]['link'] %>" target="_blank" rel="noopener">
-          <img class="cf-friends-avatar" src="<%= fLinks[key]['img'] %>" alt="<%= fLinks[key]['title'] %>">
-          <div id="fLinkTitle" class="cf-friends-name"><%= fLinks[key]['title'] %></div>
-          <div id="fLinkDes"><%= fLinks[key]['des'] %></div>
-        </a>
-        <% }%>
-      </div>
-      <div>
-        <hr>
-        <blockquote>
-          <p>Notes: <%= note.getLabelValue("notes") %>
-          </p>
-        </blockquote>
-        <p>My link：</p>
-        <pre><code class="language-json">"title": "<%= note.getLabelValue("myTitle") %>",
-"link": "<%= note.getLabelValue("myLink") %>",
-"img": "<%= note.getLabelValue("myImg") %>",
-"des": "<%= note.getLabelValue("myDes") %>"</code></pre>
-        <p>加入本站友链的格式：</p>
-        <pre><code class="language-json">{
-    "title": "博客名称",  //建议8个中文字符以内
-    "link": "博客链接",
-    "img": "站长头像",
-    "des": "博客描述"
-}</code></pre>
-      </div>
-
-      <% } else if (note.getLabelValue("categoryName") === "朋友圈")  {%>
-      <div id="hexo-circle-of-friends-root"></div>
-      <script>
-        let UserConfig = {
-          private_api_url: '<%=note.getLabelValue("friendCircleUrl")%>',
-          page_init_number: 20,
-          page_turning_number: 10,
-          error_img: 'https://sdn.geekzu.org/avatar/57d8260dfb55501c37dde588e7c3852c',
-          sort_rule: 'created',
-          expire_days: 1,
-        }
-      </script>
-      <script type="text/javascript" src="https://npm.elemecdn.com/fcircle-theme-yyyz@1.0.13/dist/fcircle.min.js"></script>
-      <% } else if (note.getLabelValue("categoryName") === "现在")  {%>
-        <div id="content" class="type-<%= note.type %><% if (note.type === 'text') { %> ck-content<% } %>">
-          <%- content %>
-        </div>
-      <%- include('now') %>
-      <% } else if (note.getLabelValue("categoryName") === "Timeline")  {%>
-      <% const groupedNotes = Object.fromEntries(
-                 Object.entries(
-                   subRoot.note.getVisibleChildNotes()[5].getVisibleChildNotes().reduce((groupedNotes, note) => {
-                     const year = note.getLabelValue('date').slice(0, 4);
-                     if (!groupedNotes[year]) {
-                       groupedNotes[year] = [];
-                     }
-                     const index = groupedNotes[year].findIndex(n => n.date < note.getLabelValue('date'));
-                     if (index === -1) {
-                       groupedNotes[year].push({ date: note.getLabelValue('date'), title: note.title, link: note.noteId});
-                     } else {
-                       groupedNotes[year].splice(index, 0, { date: note.getLabelValue('date'), title: note.title, link: note.noteId});
-                     }
-                     return groupedNotes;
-                   }, {})
-                 )
-               )
-               const postYears = Object.keys(groupedNotes).sort((a, b) => b - a);
-
-             %>
-      <div id="content" class="timeline">
-        <% postYears.forEach(postYear =>{ %>
-        <div class="year">
-          <span class="yearLabel"><%=postYear%></span>
-          <% groupedNotes[postYear].forEach(item => { %>
-          <div class="post">
-            <div class="postDate"><%= item.date.slice(5,10) %></div>
-            <a class="postTitle" href="./<%= item.link %>"><%= item.title %></a>
-          </div>
-          <%})%>
-
-        </div>
-        <%})%>
-
-      </div>
-      <% } else if (note.getLabelValue("categoryName") === "tagCloud")  {%>
       <%
-             function getRandomColor() {
-                 const letters = '0123456789ABCDEF';
-                 let color = '#';
-                 for (let i = 0; i < 6; i++) {
-                     color += letters[Math.floor(Math.random() * 16)];
-                 }
-                 return color + 'A6';
-             }
-           %>
-      <div class="tagCloud">
-        <% subRoot.note.getVisibleChildNotes()[4].getVisibleChildNotes().forEach( tags => { %>
-        <a class="tagItem" style="background-color: <%= getRandomColor() %>;" href="./tag_<%= tags.title %>"><%=`${tags.title}(${tags.getVisibleChildNotes().length})`%></a>
-        <% }) %>
-      </div>
-      <% } else{%>
-      <div id="content" class="type-<%= note.type %><% if (note.type === 'text') { %> ck-content<% } %>">
-        <%- content %>
-      </div>
-        <!-- Disqus -->
-        <% if ((subRoot.note.hasLabel("enableDisqus") && !note.hasLabel("disableDisqus")) && (!note.hasLabel("shareAlias") || note.getLabelValue("shareAlias") !== "about")) { %>
-          <div id="disqus_container">
-            <div id="disqus_consent_area">
-                <p style="font-size:smaller">Comments are loaded via Disqus. By clicking the button below, you consent to Disqus collecting and processing your data, including potentially setting cookies. Please read the Disqus <a href="https://disqus.com/terms/" target="_blank">Terms of Service</a> and <a href="https://disqus.com/privacy/" target="_blank">Privacy Policy</a> for more information.</p>
-                <button id="load-comments-button">Load Comments</button>
-            </div>
-            <div id="disqus_thread" style="display: none;"></div>
-            <script>
-              document.getElementById('load-comments-button').addEventListener('click', function() {
-                // 1. Hide the consent area and show the Disqus thread div
-                document.getElementById('disqus_consent_area').style.display = 'none';
-                document.getElementById('disqus_thread').style.display = 'block';
-
-                // 2. Define the Disqus configuration variables (replace with your actual page data)
-                var disqus_config = function () {
-                  this.page.url = window.location.protocol + "//" + window.location.host + window.location.pathname;
-                  this.page.identifier = "<%= note.noteId %>";
-                };
-
-                // 3. Create and append the Disqus embed script
-                var d = document, s = d.createElement('script');
-                s.src = '<%= subRoot.note.getLabelValue("disqusEmbedJS") %>';
-                s.setAttribute('data-timestamp', +new Date());
-                (d.head || d.body).appendChild(s);
-              });
-            </script>
-          </div>
-        <!-- CommentBox.io -->
-        <% } else if (subRoot.note.hasLabel("enableCommentBox") && (!note.hasLabel("shareAlias") || note.getLabelValue("shareAlias") !== "about")) { %>
-          <div class="commentbox"></div>
-          <script src="https://unpkg.com/commentbox.io/dist/commentBox.min.js"></script>
-          <script>commentBox('<%= subRoot.note.getLabelValue("commentBoxID") %>')</script>
-        <% } %>
-      <% } %>
-      <% if (subRoot.note.hasLabel("enableReward") && note.hasLabel("showReward")) { %>
-      <div id="rewardContainer">
-        <button id="rewardBtn">🔋点我催更</button>
-        <p style="font-size: smaller;" class="coffee">“您的支持是我持续分享的动力”</p>
-        <div id="rewardImgContainer">
-          <div class="singleImgContainer">
-            <img class="rewardImg" src="api/images/<%= subRoot.note.getRelation("wechatPay").value %>/微信收款码" alt="微信收款码" />
-            <div class="wechatPay">微信</div>
-          </div>
-          <div class="singleImgContainer">
-            <img class="rewardImg" src="api/images/<%= subRoot.note.getRelation("aliPay").value %>/支付宝收款码" alt="支付宝收款码" />
-            <div class="aliPay">支付宝</div>
-          </div>
-        </div>
-      </div>
-      <% } %>
-      <hr>
-      <% } %>
-
-      <% if (note.hasVisibleChildren()) { %>
-      <hr>
-      <nav id="childLinks" class="<% if (isEmpty) { %>grid<% } else { %>list<% } %>">
-        <% if (!isEmpty) { %>
-        <hr>
-        <% } %>
-        <% const childNotes = note.getLabelValue("categoryName")==="Home" ? note.getVisibleChildNotes().slice(0,15) :  note.getVisibleChildNotes();
-                    for (const childNote of childNotes) {
-                        const isExternalLink = childNote.hasLabel('shareExternalLink');
-                        const linkHref = isExternalLink ? childNote.getLabelValue('shareExternalLink') : `./${childNote.shareId}`;
-                        const target = isExternalLink ? `target="_blank" rel="noopener noreferrer"` : '';
-                    %>
-        <div id="blogItems" style="<%= childNote.hasLabel("blogPostTop") ? 'order: -1' : ''%>">
-          <div class="blogItemsMainContain">
-            <a style="color: black;" href="<%= linkHref %>" <%= target %> class="type-<%= childNote.type %>">
-              <div>
-                <% if (childNote.hasLabel("blogPostTop")) { %>
-                <b class="blogPostTopStyle">📌</b>
-                <% } %>
-                <b id="blogItemTitle"><%= childNote.title %></b>
-              </div>
-              <div>
-                <% if (childNote.hasLabel("headerImage") && childNote.getLabelValue("headerImage")!=null) { %>
-                <div id="blogItemSummaryImgContain">
-                  <img src="<%= childNote.getLabelValue("headerImage") %>">
-                </div>
-                <% } %>
-                <% if (childNote.hasLabel("summary") && childNote.getLabelValue("summary")!=null) { %>
-                <div id="blogItemSummary" style="font-size:90%;font-weight: 400;margin-top:5px;"><%= childNote.getLabelValue("summary") %></div>
-                <% } %>
-              </div>
-            </a>
-            <div class="blogMetadate">
-              <% const tags = childNote.getLabelValues("tags");
-                              if (tags!=null ||tags!=undefined ||tags!=""){
-                                  tags.forEach((tag)=>{ %>
-              <a href="./tag_<%= tag %>">
-                <div class="blogMetadateItems categoryBadge shakeStyle">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="0.8rem" height="0.8rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag">
-                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
-                  </svg>
-                  <div style="margin-left: 0.3rem;"><%= tag  %></div>
-                </div>
-              </a>
-              <%})} %>
-              <a href="./category_<%= childNote.getLabelValue("category") %>">
-                <div class="blogMetadateItems categoryBadge shakeStyle">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="0.8rem" height="0.8rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-folder">
-                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                  </svg>
-                  <div style="margin-left: 0.3rem;"><%= childNote.getLabelValue("category")  %></div>
-                </div>
-              </a>
-
-              <% if (childNote.hasLabel("date") && childNote.getLabelValue("date")!=null) {
-                            const postDate = childNote.getLabelValue("date");
-                            %>
-              <div class="blogMetadateItems">
-                <svg xmlns="http://www.w3.org/2000/svg" width="0.8rem" height="0.8rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-clock">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-                <div id="blogPostDate" style="margin-left: 0.3rem;" blogpostdate="<%= postDate %>"><%= getDaysAgo(postDate.split("T")[0])%></div>
-              </div>
-              <% } %>
-
-              <% if (subRoot.note.hasLabel("enableDisqus")) { %>
-              <a href="./<%= childNote.noteId %>">
-                <div class="blogMetadateItems">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="0.8rem" height="0.8rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-circle">
-                    <path d="M1.5,5.3v9.54a3.82,3.82,0,0,0,3.82,3.82H7.23v2.86L13,18.66h5.73a3.82,3.82,0,0,0,3.82-3.82V5.3a3.82,3.82,0,0,0-3.82-3.82H5.32A3.82,3.82,0,0,0,1.5,5.3Z"></path>
-                  </svg>
-                  <div id="blogPostComments" style="margin-left: 0.3rem;">
-                    <span class="disqus-comment-count"
-                    data-disqus-url="https://<%= siteHostname %>/share/<%= childNote.noteId
-                    %>">0</span>
+      if (note.hasLabel("date") && note.getLabelValue('date')!=null) { %>
+        <div id="contentHeader">
+          <div class="blogMetadate">
+            <%
+            const tags = note.getLabelValues("tags");
+            if (tags != null ||tags != undefined || tags != "") {
+              tags.forEach((tag) => { %>
+                <a href="./tag_<%= tag %>">
+                  <div class="blogMetadateItems categoryBadge shakeStyle">
+                    <i class="fa-solid fa-tag"></i>
+                    <div style="margin-left: 0.3rem;"><%= tag  %></div>
                   </div>
-                </div>
-              </a>
-              <% } %>
+                </a><%
+              })
+            } %>
             </div>
-          </div>
-        </div>
-        <% } %>
-      </nav>
-      <% if(note.getLabelValue("categoryName")==="Home"){  %>
-      <div id="morePost">
-        <div> =&nbspExplor more at &nbsp</div>
-        <a href="./timeline">Timeline</a>
-        <div> &nbsp= </div>
-      </div>
-      <% } %>
-      <% } else if (isEmpty) { %>
-      <p>施工中...</p>
-      <% } %>
+            <div style="display: flex;margin-left: 1em;">
+              <div class="blogMetadate" title="Word Count">
+                <i class="fa-regular fa-pen-to-square"></i>
+                <span id="articleWordCount" style="padding-left: 0.3em;">-</span>
+                <span>w</span>
+              </div>
+              <div class="blogMetadate" title="Date Published">
+                <i class="fa-solid fa-calendar"></i>
+                <span style="padding-left: 0.3em;"><%= note.getLabelValue("date").split("T")[0] %></span>
+              </div>
+            </div>
+          </div><%
+      } %>
 
-      <% if (subRoot.note.hasLabel("enableTwikoo")) { %>
-      <div style="display:<%= note.hasLabel("showComments")?"block":"none" %> !important">
-        <div id="tcomment"></div>
-      </div>
-      <script>
-        twikoo.init({
-          envId: "<%= subRoot.note.getLabelValue("envId") %>",
-          el: '#tcomment',
-        })
-      </script>
-      <% } %>
-      <div id="onTop" title="Back to Top">
-        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up" style="
-       color: #ffffff;
-   ">
-          <line x1="12" y1="19" x2="12" y2="5"></line>
-          <polyline points="5 12 12 5 19 12"></polyline>
-        </svg>
-      </div>
-    </div>
-    <div id="menuCard" class="cardContainerStyle" style="<%=subRoot.note.hasLabel("swapInfoCard")?"right:10px":"left:10px"%>">
-      <% if(subRoot.note.hasLabel("enablePersonalDynamic")) {%>
-      <div id="recentActivityCard" class="bloggerInfoCardStyle" style="margin-left: auto;">
-        <a href="./recentActivity" style="color:black" title="Recent Activities">
-          <div class="bloggerInfoTitleStyle">Activities</div>
-        </a>
-        <hr>
-        <% subRoot.note.getVisibleChildNotes()[0].getVisibleChildNotes().slice(0,5).forEach((childNote)=>{%>
-        <div class="cardItemLinkStyle">
-          <b style="font-size: 0.6em;
-        display: inline-block;
-        width: 3.5em;
-        text-align: center;"><%= getDaysAgo(childNote.getLabelValue("date").split("T")[0])%></b>
-          <a href="./<%= childNote.shareId %>" title="<%=  childNote.title %>" class="menuLinkStyle"><%= childNote.title %></a>
-        </div>
-        <% }) %>
-      </div>
-      <% } %>
-      <% if(subRoot.note.hasLabel("enableRecommendedReading")) {%>
-      <div id="recommendedReadingCard" class="bloggerInfoCardStyle" style="margin-left: auto;">
-        <a href="./recommendedReading" style="color:black" title="All Recomendations">
-          <div class="bloggerInfoTitleStyle">Recommendations</div>
-        </a>
-        <hr>
-        <% subRoot.note.getVisibleChildNotes()[2].getVisibleChildNotes().forEach((childNote)=>{%>
-        <div class="cardItemLinkStyle">
-          <b style="font-size: 0.8rem;">🔥</b>
-          <a href="./<%= childNote.shareId %>" title="<%=  childNote.title %>" class="menuLinkStyle"><%= childNote.title %></a>
-        </div>
-        <% }) %>
-      </div>
-      <% } %>
-    </div>
-    <% if (headingMatches.length > 1){ %>
-    <!-- 目录插件 -->
-    <%
-                const level = (m) => parseInt(m[1].replace(/[<h>]+/g, ""));
+      <%
+      if (note.hasLabel("pageUrl")) { %>
+        <div id="noteClippedFrom">This note was originally clipped from <a href="<%= note.getLabelValue("pageUrl") %>"><%= note.getLabelValue("pageUrl") %></a></div><%
+      } %>
 
-                const toc = [
-                    {
-                        level: level(headingMatches[0]),
-                        name: headingMatches[0][2],
-                        children: []
-                    }
-                ];
-                const last = (arr = toc) => arr[arr.length - 1];
-                const makeEntry = (m) => ({level: level(m), name: m[2], children: []});
-                const getLevelArr = (lvl, arr = toc) => {
-                    if (arr[0].level === lvl) return arr;
-                    const top = last(arr);
-                    return top.children.length ? getLevelArr(lvl, top.children) : top.children;
-                };
-
-
-                for (let m = 1; m < headingMatches.length; m++) {
-                    const target = getLevelArr(level(headingMatches[m]));
-                    target.push(makeEntry(headingMatches[m]));
+      <%
+      if (!isEmpty) {
+        if (note.getLabelValue("categoryName") === "Timeline") {
+          const groupedNotes = Object.fromEntries(
+            Object.entries(
+              subRoot.note.getVisibleChildNotes()[5].getVisibleChildNotes().reduce((groupedNotes, note) => {
+                const year = note.getLabelValue('date').slice(0, 4);
+                if (!groupedNotes[year]) {
+                  groupedNotes[year] = [];
                 }
-                %>
-    <div id="toc-pane" style="<%=subRoot.note.hasLabel("swapInfoCard")?"left:10px":"right:10px"%>">
-      <strong>Content</strong>
-      <ul id="toc">
-        <% for (const entry of toc) { %>
-        <%- include('toc_item', {entry}) %>
-        <% } %>
-      </ul>
+                const index = groupedNotes[year].findIndex(n => n.date < note.getLabelValue('date'));
+                if (index === -1) {
+                  groupedNotes[year].push({ date: note.getLabelValue('date'), title: note.title, link: note.noteId});
+                } else {
+                  groupedNotes[year].splice(index, 0, { date: note.getLabelValue('date'), title: note.title, link: note.noteId});
+                }
+                return groupedNotes;
+              }, {})
+            )
+          );
+          const postYears = Object.keys(groupedNotes).sort((a, b) => b - a); %>
+          <div id="content" class="timeline">
+            <%
+            postYears.forEach(postYear =>{ %>
+              <div class="year">
+                <span class="yearLabel"><%=postYear%></span>
+                <%
+                groupedNotes[postYear].forEach(item => { %>
+                  <div class="post">
+                    <div class="postDate"><%= item.date.slice(5,10) %></div>
+                    <a class="postTitle" href="./<%= item.link %>"><%= item.title %></a>
+                  </div><%
+                }) %>
+              </div><%
+            }) %>
+          </div><%
+        } else if (note.getLabelValue("categoryName") === "tagCloud") {
+          function getRandomColor() {
+              const letters = '0123456789ABCDEF';
+              let color = '#';
+              for (let i = 0; i < 6; i++) {
+                  color += letters[Math.floor(Math.random() * 16)];
+              }
+              return color + 'A6';
+          } %>
+          <div class="tagCloud">
+            <% subRoot.note.getVisibleChildNotes()[4].getVisibleChildNotes().forEach( tags => { %>
+            <a class="tagItem" style="background-color: <%= getRandomColor() %>;" href="./tag_<%= tags.title %>"><%=`${tags.title}(${tags.getVisibleChildNotes().length})`%></a>
+            <% }) %>
+          </div><%
+        } else { %>
+          <div id="content" class="type-<%= note.type %><% if (note.type === 'text') { %> ck-content<% } %>">
+            <%- content %>
+          </div>
+          <!-- Disqus -->
+          <%
+          if ((subRoot.note.hasLabel("enableDisqus") &&
+              !note.hasLabel("disableDisqus")) && (!note.hasLabel("shareAlias") ||
+              note.getLabelValue("shareAlias") !== "about")) { %>
+            <div id="disqus_container">
+              <button id="zaraz-consent-trigger" onclick="zaraz.consent.modal = true" aria-label="Privacy Settings">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Privacy</span>
+              </button>
+              <style>
+                #zaraz-consent-trigger {
+                  position: fixed;
+                  bottom: 20px;
+                  left: 20px;
+                  z-index: 9999; /* Ensures it stays on top of other elements */
+
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+
+                  padding: 10px 16px;
+                  background-color: #000000; /* Adjust to match your brand */
+                  color: #ffffff;
+                  border: none;
+                  border-radius: 8px;
+                  cursor: pointer;
+                  font-family: sans-serif;
+                  font-size: 14px;
+                  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                  transition: transform 0.2s ease, background-color 0.2s ease;
+                }
+
+                #zaraz-consent-trigger:hover {
+                  background-color: #333333;
+                  transform: translateY(-2px);
+                }
+
+                /* Hide on very small screens if it overlaps content (optional) */
+                @media (max-width: 480px) {
+                  #zaraz-consent-trigger span {
+                    display: none; /* Only shows the icon on mobile */
+                  }
+                  #zaraz-consent-trigger {
+                    padding: 10px;
+                    border-radius: 50%; /* Makes it a circle on mobile */
+                  }
+                }
+              </style>
+              <div id="disqus_consent_area">
+                  <p style="font-size:smaller">Comments are loaded via Disqus. By clicking the button below, you consent to Disqus collecting and processing your data, including potentially setting cookies. Please read the Disqus <a href="https://disqus.com/terms/" target="_blank">Terms of Service</a> and <a href="https://disqus.com/privacy/" target="_blank">Privacy Policy</a> for more information.</p>
+                  <button id="load-comments-button" onclick="zaraz.consent.set({ 'zFUJ': true })">Load Disqus</button>
+              </div>
+              <div id="disqus_thread" style="display: none;"></div>
+            </div><%
+          } %><%
+        } %>
+        <hr><%
+      } %>
+
+      <%
+      if (note.hasVisibleChildren()) { %>
+        <hr>
+        <nav id="childLinks" class="<%= isEmpty?'grid':'list' %>">
+          <%
+          if (!isEmpty) { %>
+            <hr><%
+          }
+          const childNotes = (
+            note.getLabelValue("categoryName")==="Home" ?
+              note.getVisibleChildNotes().slice(0,15) :
+              note.getVisibleChildNotes()
+          );
+
+          for (const childNote of childNotes) {
+            const isExternalLink = childNote.hasLabel('shareExternalLink');
+            const linkHref = isExternalLink ? childNote.getLabelValue('shareExternalLink') : `./${childNote.shareId}`;
+            const target = isExternalLink ? `target="_blank" rel="noopener noreferrer"` : ''; %>
+            <div id="blogItems" style="<%= childNote.hasLabel("blogPostTop") ? 'order: -1' : ''%>">
+              <div class="blogItemsMainContain">
+                <a style="color: black;" href="<%= linkHref %>" <%= target %> class="type-<%= childNote.type %>">
+                  <div>
+                    <%
+                    if (childNote.hasLabel("blogPostTop")) { %>
+                      <b class="blogPostTopStyle">📌</b><%
+                    } %>
+                    <b id="blogItemTitle"><%= childNote.title %></b>
+                  </div>
+                  <div>
+                    <%
+                    if (childNote.hasLabel("headerImage") &&
+                        childNote.getLabelValue("headerImage") != null) {
+                      const headerImage = childNote.getLabelValue("headerImage");
+                      const cloudflareCDN = "width=150,height=150,fit=cover,quality=75,onerror";
+                      %>
+                      <div id="blogItemSummaryImgContain">
+                        <img src="<%= headerImage.startsWith("https://")?headerImage:`/cdn-cgi/image/${cloudflareCDN}${headerImage}`%>">
+                      </div><%
+                    }
+
+                    if (childNote.hasLabel("summary") &&
+                          childNote.getLabelValue("summary") != null) { %>
+                      <div id="blogItemSummary" style="font-size:90%;font-weight: 400;margin-top:5px;">
+                        <%= childNote.getLabelValue("summary") %>
+                      </div><%
+                    } %>
+                  </div>
+                </a>
+                <div class="blogMetadate">
+                  <%
+                  const tags = childNote.getLabelValues("tags");
+                  if (tags != null ||tags != undefined ||tags != "") {
+                    tags.forEach((tag) => { %>
+                      <a href="./tag_<%= tag %>">
+                        <div class="blogMetadateItems categoryBadge shakeStyle">
+                          <i class="fa-solid fa-tag"></i>
+                          <div style="margin-left: 0.3rem;"><%= tag  %></div>
+                        </div>
+                      </a><%
+                    })
+                  } %>
+                  <a href="./category_<%= childNote.getLabelValue("category") %>">
+                    <div class="blogMetadateItems categoryBadge shakeStyle">
+                      <i class="fa-solid fa-folder"></i>
+                      <div style="margin-left: 0.3rem;"><%= childNote.getLabelValue("category")  %></div>
+                    </div>
+                  </a>
+
+                  <%
+                  if (childNote.hasLabel("date") &&
+                        childNote.getLabelValue("date") != null) {
+                    const postDate = childNote.getLabelValue("date"); %>
+                    <div class="blogMetadateItems">
+                      <i class="fa-solid fa-clock-rotate-left"></i>
+                      <div id="blogPostDate" style="margin-left: 0.3rem;" blogpostdate="<%= postDate %>"><%= getDaysAgo(postDate.split("T")[0])%></div>
+                    </div><%
+                  }
+
+                  if (subRoot.note.hasLabel("enableDisqus")) { %>
+                    <a href="./<%= childNote.noteId %>">
+                      <div class="blogMetadateItems">
+                        <i class="fa-solid fa-comments"></i>
+                        <div id="blogPostComments" style="margin-left: 0.3rem;">
+                          <span class="disqus-comment-count" data-disqus-url="https://<%= siteHostname %>/share/<%= childNote.noteId%>">0</span>
+                        </div>
+                      </div>
+                    </a><%
+                  } %>
+                </div>
+              </div>
+            </div><%
+          } %>
+        </nav>
+        <%
+        if(note.getLabelValue("categoryName") === "Home") {  %>
+          <div id="morePost">
+            <div> =&nbspExplor more at &nbsp</div>
+            <a href="./timeline">Timeline</a>
+            <div> &nbsp= </div>
+          </div><%
+        }
+      } else if (isEmpty) { %>
+        <p>Under construction...</p><%
+      } %>
+
+      <div id="onTop" title="Back to Top">
+        <i class="fa-solid fa-arrow-up"></i>
+      </div>
     </div>
 
-    <% }%>
-    <div id="bloggerInfoCard" class="cardContainerStyle" style="<%=subRoot.note.hasLabel("swapInfoCard")?"left:10px":"right:10px"%>; display:<%=headingMatches.length > 1?"none":"block"  %>">
+    <div id="menuCard" class="cardContainerStyle" style="<%=subRoot.note.hasLabel("swapInfoCard")?"right:10px":"left:10px"%>">
+      <%
+      if(subRoot.note.hasLabel("enablePersonalDynamic")) { %>
+        <div id="recentActivityCard" class="bloggerInfoCardStyle" style="margin-left: auto;">
+          <a href="./recentActivity" style="color:black" title="Recent Activities">
+            <div class="bloggerInfoTitleStyle">Activities</div>
+          </a>
+          <hr>
+          <%
+          subRoot.note.getVisibleChildNotes()[0].getVisibleChildNotes().slice(0,5).forEach((childNote) => { %>
+            <div class="cardItemLinkStyle">
+              <b style="font-size: 0.6em; display: inline-block; width: 3.5em; text-align: center;"><%= getDaysAgo(childNote.getLabelValue("date").split("T")[0])%></b>
+              <a href="./<%= childNote.shareId %>" title="<%=  childNote.title %>" class="menuLinkStyle">
+                <%= childNote.title %>
+              </a>
+            </div><%
+          }) %>
+        </div><%
+      }
+
+      if(subRoot.note.hasLabel("enableRecommendedReading")) { %>
+        <div id="recommendedReadingCard" class="bloggerInfoCardStyle" style="margin-left: auto;">
+          <a href="./recommendedReading" style="color:black" title="All Recomendations">
+            <div class="bloggerInfoTitleStyle">Recommendations</div>
+          </a>
+          <hr>
+          <%
+          subRoot.note.getVisibleChildNotes()[2].getVisibleChildNotes().forEach((childNote) => { %>
+            <div class="cardItemLinkStyle">
+              <b style="font-size: 0.8rem;">🔥</b>
+              <a href="./<%= childNote.shareId %>" title="<%=  childNote.title %>" class="menuLinkStyle">
+                <%= childNote.title %>
+              </a>
+            </div><%
+          }) %>
+        </div>
+      <% } %>
+    </div>
+
+    <%
+    if (headingMatches.length > 1) {
+      // Content plugin
+      const level = (m) => parseInt(m[1].replace(/[<h>]+/g, ""));
+
+      const toc = [{
+        level: level(headingMatches[0]),
+        name: headingMatches[0][2],
+        children: []
+      }];
+      const last = (arr = toc) => arr[arr.length - 1];
+      const makeEntry = (m) => ({level: level(m), name: m[2], children: []});
+      const getLevelArr = (lvl, arr = toc) => {
+        if (arr[0].level === lvl) return arr;
+        const top = last(arr);
+        return top.children.length ? getLevelArr(lvl, top.children) : top.children;
+      };
+
+      for (let m = 1; m < headingMatches.length; m++) {
+        const target = getLevelArr(level(headingMatches[m]));
+        target.push(makeEntry(headingMatches[m]));
+      } %>
+      <div id="toc-pane" style="<%=subRoot.note.hasLabel("swapInfoCard")?"left:10px":"right:10px"%>">
+        <strong>Content</strong>
+        <ul id="toc">
+          <%
+          for (const entry of toc) { %>
+            <%- include('toc_item', {entry}) %><%
+          } %>
+        </ul>
+      </div><%
+    }%>
+
+    <div id="bloggerInfoCard" class="cardContainerStyle" style="<%=subRoot.note.hasLabel("swapInfoCard")?"left:10px":"right:10px"%>; display:<%=headingMatches.length > 1?"none":"block" %>">
       <div id="bloggerInfo" class="bloggerInfoCardStyle">
         <a href="./about" title="About">
-          <img src=<%= bloggerAvatar %> href="./about">
+          <img src="<%= bloggerAvatar %>" href="./about">
         </a>
         <div id="bloggerInfoName" class="bloggerInfoTitleStyle"><%= bloggerName%></div>
         <div id="motto" class="bloggerInfoContentStyle"><%= subRoot.note.getLabelValue("motto") %></div>
       </div>
       <%
-       const linkLabels = [
-         "githubLink",
-         "linkedinLink",
-         "bmcLink",
-         "RSSLink",
-         "zhihuLink",
-         "sspaiLink",
-         "netEaseCloudLink",
-         "bilibiliLink",
-         "doubanLink",
-         "telegramLink",
-         "mailLink"
-       ];
-       const socialInformationExist =  linkLabels.some(element => {
-         if (subRoot.note.hasLabel(element)){
-           return true;
-         }
-       });
-       %>
-      <% if (socialInformationExist) {%>
-      <div id="otherPlatformBar" class="bloggerInfoCardStyle">
-        <% if (subRoot.note.hasLabel("githubLink") && subRoot.note.getLabelValue("githubLink")!=null) { %>
-        <a class="platformStyle" target="_blank" rel="noopener" title="github" href="<%= subRoot.note.getLabelValue("githubLink") %>"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <title>GitHub</title>
-            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
-          </svg>
-        </a>
-        <% } %>
-        <% if (subRoot.note.hasLabel("RSSLink") && subRoot.note.getLabelValue("RSSLink")!=null) { %>
-        <a class="platformStyle" target="_blank" rel="noopener" title="RSS" href="<%= subRoot.note.getLabelValue("RSSLink") %>"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <title>RSS</title>
-            <path d="M19.199 24C19.199 13.467 10.533 4.8 0 4.8V0c13.165 0 24 10.835 24 24h-4.801zM3.291 17.415c1.814 0 3.293 1.479 3.293 3.295 0 1.813-1.485 3.29-3.301 3.29C1.47 24 0 22.526 0 20.71s1.475-3.294 3.291-3.295zM15.909 24h-4.665c0-6.169-5.075-11.245-11.244-11.245V8.09c8.727 0 15.909 7.184 15.909 15.91z" />
-          </svg>
-        </a>
-        <% } %>
-        <% if (subRoot.note.hasLabel("linkedinLink") && subRoot.note.getLabelValue("linkedinLink")!=null) { %>
-        <a class="platformStyle" target="_blank" rel="noopener" title="linkedin" href="<%= subRoot.note.getLabelValue("linkedinLink") %>"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <title>LinkedIn</title>
-            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-          </svg>
-        <% } %>
-        <% if (subRoot.note.hasLabel("zhihuLink") && subRoot.note.getLabelValue("zhihuLink")!=null) { %>
-        <a class="platformStyle" target="_blank" rel="noopener" title="zhihu" href="<%= subRoot.note.getLabelValue("zhihuLink") %>"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <title>知乎</title>
-            <path d="M5.721 0C2.251 0 0 2.25 0 5.719V18.28C0 21.751 2.252 24 5.721 24h12.56C21.751 24 24 21.75 24 18.281V5.72C24 2.249 21.75 0 18.281 0zm1.964 4.078c-.271.73-.5 1.434-.68 2.11h4.587c.545-.006.445 1.168.445 1.171H9.384a58.104 58.104 0 01-.112 3.797h2.712c.388.023.393 1.251.393 1.266H9.183a9.223 9.223 0 01-.408 2.102l.757-.604c.452.456 1.512 1.712 1.906 2.177.473.681.063 2.081.063 2.081l-2.794-3.382c-.653 2.518-1.845 3.607-1.845 3.607-.523.468-1.58.82-2.64.516 2.218-1.73 3.44-3.917 3.667-6.497H4.491c0-.015.197-1.243.806-1.266h2.71c.024-.32.086-3.254.086-3.797H6.598c-.136.406-.158.447-.268.753-.594 1.095-1.603 1.122-1.907 1.155.906-1.821 1.416-3.6 1.591-4.064.425-1.124 1.671-1.125 1.671-1.125zM13.078 6h6.377v11.33h-2.573l-2.184 1.373-.401-1.373h-1.219zm1.313 1.219v8.86h.623l.263.937 1.455-.938h1.456v-8.86z" />
-          </svg>
-        </a>
-        <% } %>
-        <% if (subRoot.note.hasLabel("sspaiLink") && subRoot.note.getLabelValue("sspaiLink")!=null) { %>
-        <a class="platformStyle" target="_blank" rel="noopener" title="sspai" href="<%= subRoot.note.getLabelValue("sspaiLink") %>"><svg data-v-b3f1de54="" data-v-fda2b58a="" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" viewBox="0 0 36 36">
-            <title>少数派</title>
-            <path data-v-b3f1de54="" d="M18,0C8.1,0,0,8.1,0,18s8.1,18,18,18s18-8.1,18-18S27.9,0,18,0z M26.9,11.6c0,0.2-0.1,0.3-0.2,0.5
-            c-0.1,0.1-0.3,0.2-0.4,0.2l-3.3,0.6v8.3c0,0.5,0.1,1,0.3,1.4l2.1,4c0.1,0.1,0.1,0.2,0.1,0.3c0,0.1,0,0.2-0.1,0.3
-            c-0.1,0.1-0.1,0.2-0.3,0.2c-0.1,0.1-0.2,0.1-0.3,0.1H23c-0.1,0-0.3,0-0.4-0.1c-0.1-0.1-0.2-0.2-0.3-0.3l-2.1-3.9
-            c-0.2-0.5-0.4-1-0.4-1.5v-8.4l-4.6,0.8v11.4c0,0.2,0,0.4-0.1,0.5c-0.1,0.2-0.2,0.3-0.4,0.4l-1.3,0.8c-0.1,0.1-0.3,0.1-0.4,0.1
-            s-0.3,0-0.4-0.1c-0.1-0.1-0.2-0.2-0.3-0.3c-0.1-0.1-0.1-0.3-0.1-0.4v-12l-3.4,0.6c-0.1,0-0.2,0-0.4,0c-0.1,0-0.2-0.1-0.3-0.2
-            C8.1,14.9,8,14.8,8,14.6c0-0.1-0.1-0.2,0-0.4l0.2-1.4c0-0.2,0.1-0.3,0.2-0.5c0.1-0.1,0.3-0.2,0.5-0.2l17.4-2.9c0.1,0,0.3,0,0.4,0
-            c0.1,0,0.2,0.1,0.3,0.2C26.9,9.5,27,9.6,27,9.7c0,0.1,0.1,0.2,0,0.4L26.9,11.6z" class="logo"></path>
-          </svg>
-        </a>
-        <% } %>
-        <% if (subRoot.note.hasLabel("netEaseCloudLink") && subRoot.note.getLabelValue("netEaseCloudLink")!=null) { %>
-        <a class="platformStyle" target="_blank" rel="noopener" title="netEaseCloud" href="<%= subRoot.note.getLabelValue("netEaseCloudLink") %>"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <title>网易云音乐</title>
-            <path d="M13.046 9.388a3.919 3.919 0 0 0-.66.19c-.809.312-1.447.991-1.666 1.775a2.269 2.269 0 0 0-.074.81c.048.546.333 1.05.764 1.35a1.483 1.483 0 0 0 2.01-.286c.406-.531.355-1.183.24-1.636-.098-.387-.22-.816-.345-1.249a64.76 64.76 0 0 1-.269-.954zm-.82 10.07c-3.984 0-7.224-3.24-7.224-7.223 0-.98.226-3.02 1.884-4.822A7.188 7.188 0 0 1 9.502 5.6a.792.792 0 1 1 .587 1.472 5.619 5.619 0 0 0-2.795 2.462 5.538 5.538 0 0 0-.707 2.7 5.645 5.645 0 0 0 5.638 5.638c1.844 0 3.627-.953 4.542-2.428 1.042-1.68.772-3.931-.627-5.238a3.299 3.299 0 0 0-1.437-.777c.172.589.334 1.18.494 1.772.284 1.12.1 2.181-.519 2.989-.39.51-.956.888-1.592 1.064a3.038 3.038 0 0 1-2.58-.44 3.45 3.45 0 0 1-1.44-2.514c-.04-.467.002-.93.128-1.376.35-1.256 1.356-2.339 2.622-2.826a5.5 5.5 0 0 1 .823-.246l-.134-.505c-.37-1.371.25-2.579 1.547-3.007.329-.109.68-.145 1.025-.105.792.09 1.476.592 1.709 1.023.258.507-.096 1.153-.706 1.153a.788.788 0 0 1-.54-.213c-.088-.08-.163-.174-.259-.247a.825.825 0 0 0-.632-.166.807.807 0 0 0-.634.551c-.056.191-.031.406.02.595.07.256.159.597.217.82 1.11.098 2.162.54 2.97 1.296 1.974 1.844 2.35 4.886.892 7.233-1.197 1.93-3.509 3.177-5.889 3.177zM0 12c0 6.627 5.373 12 12 12s12-5.373 12-12S18.627 0 12 0 0 5.373 0 12Z" />
-          </svg>
-        </a>
-        <% } %>
-        <% if (subRoot.note.hasLabel("bilibiliLink") && subRoot.note.getLabelValue("bilibiliLink")!=null) { %>
-        <a class="platformStyle" target="_blank" rel="noopener" title="bilibili" href="<%= subRoot.note.getLabelValue("bilibiliLink") %>"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <title>哔哩哔哩</title>
-            <path d="M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 0 1-.373-.906c0-.356.124-.658.373-.907l.027-.027c.267-.249.573-.373.92-.373.347 0 .653.124.92.373L9.653 4.44c.071.071.134.142.187.213h4.267a.836.836 0 0 1 .16-.213l2.853-2.747c.267-.249.573-.373.92-.373.347 0 .662.151.929.4.267.249.391.551.391.907 0 .355-.124.657-.373.906zM5.333 7.24c-.746.018-1.373.276-1.88.773-.506.498-.769 1.13-.786 1.894v7.52c.017.764.28 1.395.786 1.893.507.498 1.134.756 1.88.773h13.334c.746-.017 1.373-.275 1.88-.773.506-.498.769-1.129.786-1.893v-7.52c-.017-.765-.28-1.396-.786-1.894-.507-.497-1.134-.755-1.88-.773zM8 11.107c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c0-.373.129-.689.386-.947.258-.257.574-.386.947-.386zm8 0c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c.017-.391.15-.711.4-.96.249-.249.56-.373.933-.373Z" />
-          </svg>
-        </a>
-        <% } %>
-        <% if (subRoot.note.hasLabel("doubanLink") && subRoot.note.getLabelValue("doubanLink")!=null) { %>
-        <a class="platformStyle" target="_blank" rel="noopener" title="douban" href="<%= subRoot.note.getLabelValue("doubanLink") %>"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <title>豆瓣</title>
-            <path d="M.51 3.06h22.98V.755H.51V3.06Zm20.976 2.537v9.608h-2.137l-1.669 5.76H24v2.28H0v-2.28h6.32l-1.67-5.76H2.515V5.597h18.972Zm-5.066 9.608H7.58l1.67 5.76h5.501l1.67-5.76ZM18.367 7.9H5.634v5.025h12.733V7.9Z" />
-          </svg>
-        </a>
-        <% } %>
-        <% if (subRoot.note.hasLabel("telegramLink") && subRoot.note.getLabelValue("telegramLink")!=null) { %>
-        <a class="platformStyle" target="_blank" rel="noopener" title="telegram" href="<%= subRoot.note.getLabelValue("telegramLink") %>"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <title>Telegram</title>
-            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
-          </svg>
-        </a>
-        <% } %>
-        <% if (subRoot.note.hasLabel("mailLink") && subRoot.note.getLabelValue("mailLink")!=null) { %>
-        <a class="platformStyle" target="_blank" rel="noopener" title="mail" href="mailto:Email:<%= subRoot.note.getLabelValue("mailLink") %>"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <title>邮件</title>
-            <path d="M15.61 12c0 1.99-1.62 3.61-3.61 3.61-1.99 0-3.61-1.62-3.61-3.61 0-1.99 1.62-3.61 3.61-3.61 1.99 0 3.61 1.62 3.61 3.61M12 0C5.383 0 0 5.383 0 12s5.383 12 12 12c2.424 0 4.761-.722 6.76-2.087l.034-.024-1.617-1.879-.027.017A9.494 9.494 0 0 1 12 21.54c-5.26 0-9.54-4.28-9.54-9.54 0-5.26 4.28-9.54 9.54-9.54 5.26 0 9.54 4.28 9.54 9.54a9.63 9.63 0 0 1-.225 2.05c-.301 1.239-1.169 1.618-1.82 1.568-.654-.053-1.42-.52-1.426-1.661V12A6.076 6.076 0 0 0 12 5.93 6.076 6.076 0 0 0 5.93 12 6.076 6.076 0 0 0 12 18.07a6.02 6.02 0 0 0 4.3-1.792 3.9 3.9 0 0 0 3.32 1.805c.874 0 1.74-.292 2.437-.821.719-.547 1.256-1.336 1.553-2.285.047-.154.135-.504.135-.507l.002-.013c.175-.76.253-1.52.253-2.457 0-6.617-5.383-12-12-12" />
-          </svg>
-        </a>
-        <% } %>
-        <% if (subRoot.note.hasLabel("bmcLink") && subRoot.note.getLabelValue("bmcLink")!=null) { %>
-        <a class="platformStyle" target="_blank" rel="noopener" title="bmc" href="<%= subRoot.note.getLabelValue("bmcLink") %>"><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <title>Buy Me a Coffee</title>
-            <g transform="matrix(0.0187646,0,0,0.0187646,3.71066,7.53447e-09)">
-              <path d="M191.809,236.571L216.173,239.625C291.189,248.322 366.643,252.712 442.162,252.771C461.135,252.806 480.114,252.57 499.098,252.066C536.356,251.102 573.539,249.077 610.648,245.992C629.322,244.443 647.968,242.608 666.586,240.486C676.038,239.419 685.478,238.272 694.908,237.044L697.884,236.649L700.895,236.236L701.033,236.236C702.75,235.997 704.398,235.408 705.877,234.504C707.355,233.6 708.632,232.401 709.626,230.982C710.621,229.562 711.312,227.954 711.657,226.255C712.002,224.557 711.994,222.806 711.632,221.111L696.852,152.285L696.731,151.752L694.649,142.03C693.015,134.408 691.673,126.338 688.713,119.077C679.422,96.193 652.597,94.713 631.708,90.17C617.61,87.142 603.438,84.567 589.191,82.445L584.305,81.739L577.043,80.81C570.746,80.036 564.448,79.347 558.116,78.694C528.676,75.7 499.115,73.962 469.538,73.101C408.614,71.08 347.624,73.23 286.994,79.537C280.026,80.363 272.988,81.619 265.985,82.083L265.882,82.083L254.663,83.804C243.479,85.559 232.33,87.572 221.266,89.929L221.025,89.929C219.737,90.215 218.584,90.932 217.758,91.961C216.932,92.99 216.482,94.271 216.482,95.59C216.482,96.91 216.932,98.19 217.758,99.219C218.584,100.249 219.737,100.965 221.025,101.251C233.792,103.953 246.697,106.189 259.602,108.134L265.917,109.046L267.241,109.235L273.333,110.009C279.733,110.801 286.134,111.506 292.552,112.177C306.661,113.611 320.805,114.793 334.983,115.722C366.058,117.769 397.219,118.647 428.363,118.647C460.057,118.595 491.768,117.58 523.394,115.378C537.515,114.414 551.601,113.175 565.653,111.661C572.455,110.915 579.257,110.113 586.06,109.252L588.193,108.942L597.055,107.618C617.134,104.538 634.891,112.453 641.499,132.859C647.022,149.928 634.995,174.43 616.257,177.304C600.347,179.758 584.408,181.863 568.44,183.618C503.87,190.464 438.887,192.586 374.007,189.968C315.471,187.851 256.126,182.879 198.829,170.215C178.251,165.846 158.192,159.317 138.985,150.737C124.239,144.078 110.336,134.012 102.128,119.765C90.583,99.703 95.745,74.822 111.558,58.734C124.445,45.64 141.91,38.224 158.858,32.047C205.229,15.167 256.625,9.799 305.422,5.36C370.983,-0.443 436.875,-1.536 502.591,2.09C557.342,5.033 613.297,10.195 666.517,24.235C677.826,27.038 688.965,30.484 699.88,34.559C721.182,42.801 742.604,55.258 752.928,76.56C760.86,92.424 763.269,111.85 766.314,129.143C769.842,149.257 773.076,169.423 776.518,189.572C778.376,200.55 780.751,212.388 788.786,220.01C796.821,227.633 808.711,229.215 819.19,232.898C851.882,244.409 866.215,274.503 872.53,306.352L879.567,341.849C888.153,376.021 883.318,409.918 859.023,435.916C843.761,452.245 823.25,459.386 801.794,463.567C796.352,464.617 791.392,467.391 787.649,471.478C783.905,475.565 781.577,480.749 781.009,486.263L769.601,597.451L744.72,840.061L721.87,1062.8L714.987,1130.13C706.952,1207.85 650.653,1257.95 575.615,1271.72C524.977,1281.05 472.979,1279.07 421.497,1278.24C381.337,1277.59 340.799,1276.28 301.224,1269.91C233.465,1259.04 178.749,1220.43 170.885,1148.78C169.44,1135.67 168.15,1122.52 166.773,1109.41L145.385,904.104L120.298,663.214L108.168,546.76C106.069,526.629 126.407,511.418 144.301,510.627C165.207,509.681 178.473,528.023 180.435,546.76L181.244,554.538L197.607,711.615L222.9,954.381L236.545,1085.37C239.986,1118.36 243.479,1156.51 268.756,1180.87C297.525,1208.61 343.173,1212.05 380.443,1211.84C415.355,1211.65 450.249,1213.2 485.161,1213.01C516.652,1212.73 548.022,1209.06 578.73,1202.07C612.248,1194.45 635.218,1173.61 641.757,1139.68C645.904,1118.1 646.213,1095.58 648.416,1073.74L655.298,1007.2L679.542,770.874L702.633,545.797L706.453,508.665C706.846,504.836 706.377,500.967 705.08,497.342C703.784,493.718 701.694,490.429 698.962,487.717C696.23,485.005 692.926,482.938 689.292,481.668C685.658,480.398 681.786,479.958 677.959,480.378C665.708,481.732 653.44,482.982 641.155,484.129C490.294,498.178 338.361,495.975 187.971,477.556C149.687,472.807 111.506,467.232 73.531,460.35C33.165,453.054 5.101,420.431 0.473,380.288C-1.678,361.688 4,342.193 7.648,324.075C11.296,305.956 13.722,287.597 21.878,270.735C29.806,254.916 42.369,241.891 57.891,233.397C76.801,223.073 96.794,221.352 117.7,224.793C134.993,227.598 152.216,230.798 169.543,233.397L185.029,235.651L191.809,236.571C193.879,236.848 194.859,236.963 191.809,236.571ZM74.504,381.94C74.417,382.009 74.925,382.576 75.734,383.334C75.2,382.508 74.676,381.819 74.504,381.94ZM80.663,387.979L81.033,388.341C80.965,388.22 80.775,388.1 80.775,387.979L80.663,387.979ZM800.787,382.989C806.147,377.915 809.359,370.984 809.778,363.615C811.137,346.701 809.967,326.673 801.175,311.703C788.356,289.731 764.835,296.871 743.619,300.674C719.805,304.941 695.905,308.686 671.92,311.91C540.325,329.529 405.925,331.405 273.745,319.36C242.774,316.538 211.917,312.781 181.175,308.09C155.64,304.218 125.667,293.327 99.857,296.355C83.322,298.334 77.988,316.865 75.2,330.768C72.155,345.944 66.408,371.237 78.108,383.798C84.32,390.457 94.11,392.109 103.144,393.382C195.336,406.407 287.476,416.749 380.597,419.932C510.713,424.199 641.292,414.529 769.996,395.43C781.473,393.726 793.08,390.319 800.787,382.989ZM72.43,365.835C72.757,365.68 72.155,368.484 71.897,369.792C71.845,367.813 71.948,366.058 72.43,365.835ZM76.56,384.641C77.695,386.689 77.3,385.897 76.56,384.641ZM430.019,1186.18L427.988,1187.87L427.076,1188.45C427.852,1187.46 428.864,1186.68 430.019,1186.18ZM472.623,590.836C513.591,573.303 549.054,558.144 593.068,558.161C618.516,558.161 641.091,563.237 663.459,570.876L613.406,1101.08C611.752,1121.13 602.619,1139.82 587.819,1153.45C573.019,1167.08 553.636,1174.65 533.516,1174.65C533.516,1174.65 462.161,1178.09 438.365,1178.09C416.254,1178.09 349.992,1174.65 349.992,1174.65C329.87,1174.65 310.482,1167.09 295.679,1153.46C280.876,1139.83 271.74,1121.13 270.086,1101.08L223.353,621.274C250.58,628.868 278.71,632.746 306.976,632.802C374.546,632.802 426.682,610.503 472.623,590.836Z" style="fill:rgb(13,12,34);"/>
-            </g>
-          </svg>
-        </a>
-        <% } %>
-      </div>
-      <% } %>
+      const linkLabels = [
+        "githubLink",
+        "linkedinLink",
+        "bmcLink",
+        "RSSLink",
+        "mailLink"
+      ];
+      const socialInformationExist =  linkLabels.some(element => {
+        if (subRoot.note.hasLabel(element)){
+          return true;
+        }
+      });
+
+      if (socialInformationExist) { %>
+        <div id="otherPlatformBar" class="bloggerInfoCardStyle">
+          <%
+          if (subRoot.note.hasLabel("githubLink") &&
+                subRoot.note.getLabelValue("githubLink") != null) { %>
+            <a class="platformStyle" target="_blank" rel="noopener" title="GitHub" href="<%= subRoot.note.getLabelValue("githubLink") %>">
+              <i class="fa-brands fa-github"></i>
+            </a><%
+          }
+
+          if (subRoot.note.hasLabel("RSSLink") &&
+                subRoot.note.getLabelValue("RSSLink") != null) { %>
+            <a class="platformStyle" target="_blank" rel="noopener" title="RSS" href="<%= subRoot.note.getLabelValue("RSSLink") %>">
+              <i class="fa-solid fa-rss"></i>
+            </a><%
+          }
+
+          if (subRoot.note.hasLabel("linkedinLink") &&
+                subRoot.note.getLabelValue("linkedinLink") != null) { %>
+            <a class="platformStyle" target="_blank" rel="noopener" title="LinkedIn" href="<%= subRoot.note.getLabelValue("linkedinLink") %>">
+              <i class="fa-brands fa-linkedin"></i>
+            </a><%
+          }
+
+          if (subRoot.note.hasLabel("mailLink") &&
+                subRoot.note.getLabelValue("mailLink") != null) { %>
+            <a class="platformStyle" target="_blank" rel="noopener" title="EMail" href="mailto:<%= subRoot.note.getLabelValue("mailLink") %>">
+              <i class="fa-solid fa-at"></i>
+            </a><%
+          }
+
+          if (subRoot.note.hasLabel("bmcLink") &&
+                subRoot.note.getLabelValue("bmcLink") != null) { %>
+            <a class="platformStyle" target="_blank" rel="noopener" title="Buy Me a Coffee" href="<%= subRoot.note.getLabelValue("bmcLink") %>">
+              <i class="fa-solid fa-mug-hot"></i>
+            </a><%
+          } %>
+        </div><%
+      } %>
+
       <div id="announcement" class="bloggerInfoCardStyle">
         <div class="bloggerInfoTitleStyle">Announcement</div>
         <hr>
-        <div style="text-align: left;text-indent: 1em;" class="bloggerInfoContentStyle"><%= subRoot.note.getLabelValue("announcement") %></div>
-      </div>
-
-      <% if(subRoot.note.hasLabel("enableTwikoo") && !subRoot.note.hasLabel("disableLatestCommentPane")) {%>
-      <div id="recommendedReadingCard" class="bloggerInfoCardStyle">
-        <div class="bloggerInfoTitleStyle">最新评论</div>
-        <hr>
-        <div id="latestComment" class="cardItemLinkStyle" style="font-size: 13px;">加载中...</div>
-        <script>
-          twikoo.getRecentComments({
-            envId: "<%= subRoot.note.getLabelValue("envId") %>",
-            urls: [],
-            pageSize: 6,
-            includeReply: false
-          }).then(function(res) {
-            var cardItemLinkStyle = document.querySelector('#latestComment');
-            cardItemLinkStyle.innerText = "";
-            res.forEach((comment) => {
-              var link = document.createElement('a');
-              link.href = comment.url;
-              link.title = comment.commentText;
-              link.className = 'menuLinkStyle';
-              let content = comment.commentText.replace(/[\r\n\s]+/g, "");
-              link.innerText = `${comment.nick}: ${content}`;
-              cardItemLinkStyle.appendChild(link);
-            });
-          })
-        </script>
-      </div>
-      <%}%>
+        <div style="text-align: left;text-indent: 1em;" class="bloggerInfoContentStyle">
+          <%= subRoot.note.getLabelValue("announcement") %>
         </div>
+      </div>
+    </div>
+  </div>
+  <div id="footer">
+    <hr>
+    <div>
+      <div>
+        <span>This blog has been running for: <%= Math.ceil((new Date() - new Date(subRoot.note.getLabelValue("blogStartTime"))) / (24 * 60 * 60 * 1000)) %> days</span>
+      </div>
 
+      <!-- Don't comment the following code -->
+      <div>
+        <span>
+          Powered by
+          <a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/zadam/trilium">Trilium</a>
+          <b> X </b>
+          <a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/dvai/Ankia-Theme">Ankia</a>
+        </span>
       </div>
+      <div>
+        <span>
+          Background:
+          <a href="https://www.flickr.com/photos/maitreyoda/6242165292" title="Chamrousse 1650">Chamrousse 1650</a>
+          &nbsp;» par
+          <a href="https://www.flickr.com/photos/maitreyoda/">Rog01</a>
+          ,
+          <a href="https://creativecommons.org/licenses/by-sa/2.0/deed.fr" rel="license noopener noreferrer">CC BY-SA 2.0</a>
+        </span>
       </div>
-      <div id="footer">
-        <hr>
-        <div>
-          <div>
-            <span>This blog has been running for: <%= Math.ceil((new Date() - new Date(subRoot.note.getLabelValue("blogStartTime"))) / (24 * 60 * 60 * 1000)) %> days</span>
-    </div>
-    <!-- 开源不易，请勿注释以下内容 -->
-    <div>
-      <span>
-        Powered by
-        <a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/zadam/trilium">Trilium</a>
-        <b> X </b>
-        <a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/dvai/Ankia-Theme">Ankia</a>
-      </span>
     </div>
     <div>
-      <span>
-        Background:
-        <a href="https://www.flickr.com/photos/maitreyoda/6242165292" title="Chamrousse 1650">Chamrousse 1650</a>
-        &nbsp;» par
-        <a href="https://www.flickr.com/photos/maitreyoda/">Rog01</a>
-        ,
-        <a href="https://creativecommons.org/licenses/by-sa/2.0/deed.fr" rel="license noopener noreferrer">CC BY-SA 2.0</a>
-      </span>
+      <span>Copyright &copy; <%= subRoot.note.getLabelValue("blogStartTime").slice(0,4) %>-<%= new Date().getFullYear() %>. All Rights Reserved.</span>
     </div>
-  </div>
-  <div>
-    <span>Copyright © <%= subRoot.note.getLabelValue("blogStartTime").slice(0,4) %>-<%= new Date().getFullYear() %>. All Rights Reserved.</span>
-  </div>
   </div>
   <script>
     const messageElements = document.querySelectorAll('#blogItemSummary');
@@ -812,7 +653,16 @@
     // Update on resize
     window.addEventListener('resize', updateText);
   </script>
-  <script>hljs.highlightAll();</script>
+  <script>
+    // When users change the consent, refresh the page
+    document.addEventListener("zarazConsentChoicesUpdated", () => {
+      console.log("Consent updated by user. Refreshing to apply changes...");
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 300);
+    });
+  </script>
 </body>
 
 </html>

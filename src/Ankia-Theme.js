@@ -4,6 +4,10 @@
  *
  * Licensed Apache-2.0 © 东东
  */
+
+// ----------------------------------------------------------------------
+// Parts from assets/scripts.js
+
 async function fetchNote(noteId = null) {
   if (!noteId) {
     noteId = document.body.getAttribute("data-note-id");
@@ -13,6 +17,74 @@ async function fetchNote(noteId = null) {
 
   return await resp.json();
 }
+
+// src/scripts/modules/mermaid.ts
+async function setupMermaid() {
+  const mermaidEls = document.querySelectorAll("#content pre code.language-mermaid");
+  if (mermaidEls.length === 0) {
+    return;
+  }
+  const mermaid = (await import("./mermaid.core-TRORSKKS.js")).default;
+  for (const codeBlock of mermaidEls) {
+    const parentPre = codeBlock.parentElement;
+    if (!parentPre) {
+      continue;
+    }
+    const mermaidDiv = document.createElement("div");
+    mermaidDiv.classList.add("mermaid");
+    mermaidDiv.innerHTML = codeBlock.innerHTML;
+    parentPre.replaceWith(mermaidDiv);
+  }
+  mermaid.init();
+}
+
+// src/scripts/modules/math.ts
+async function setupMath() {
+  const anyMathBlock = document.querySelector("#content .math-tex");
+  if (!anyMathBlock) {
+    return;
+  }
+  const renderMathInElement = (await import("./auto-render-UXC7LJGS.js")).default;
+  await import("./mhchem-DNUT7O3K.js");
+  const contentEl = document.getElementById("content");
+  if (!contentEl) return;
+  renderMathInElement(contentEl);
+  document.body.classList.add("math-loaded");
+}
+
+// src/scripts/index.ts
+function $try(func, ...args) {
+  try {
+    func.apply(func, args);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function setupTextNote() {
+  $try(setupMermaid);
+  $try(setupMath);
+}
+
+function determineNoteType() {
+  const bodyClass = document.body.className;
+  const match = bodyClass.match(/type-([^\s]+)/);
+  return match ? match[1] : null;
+}
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+    const noteType = determineNoteType();
+    if (noteType === "text") {
+      setupTextNote();
+    }
+  },
+  false
+);
+
+// ----------------------------------------------------------------------
+
 document.addEventListener(
   "DOMContentLoaded",
   () => {
@@ -49,21 +121,21 @@ document.addEventListener(
   "DOMContentLoaded",
   () => {
     var navigationItems = document.querySelectorAll(".navigationItemsStyle");
-    // 为每个.navigationItemsStyle元素添加事件监听器
+    // Add listener to each .navigationItemsStyle element
     navigationItems.forEach(function (item) {
       var button = item.querySelector(".menuLinkStyle");
       var dropDown = item.querySelector(".dropDownStyle");
       if (!button || !dropDown) {
         return;
       }
-      var svgElement = button.querySelector("svg");
+      var iElement = button.querySelector("i");
       let isHovering = false;
 
       button.addEventListener("mouseover", function () {
         isHovering = true;
         dropDown.style.display = "flex";
 
-        svgElement.classList.add("unfolding");
+        iElement.classList.add("unfolding");
       });
 
       button.addEventListener("mouseout", function () {
@@ -71,7 +143,7 @@ document.addEventListener(
         setTimeout(function () {
           if (!isHovering) {
             dropDown.style.display = "none";
-            svgElement.classList.remove("unfolding");
+            iElement.classList.remove("unfolding");
           }
         }, 200);
       });
@@ -85,7 +157,7 @@ document.addEventListener(
         setTimeout(function () {
           if (!isHovering) {
             dropDown.style.display = "none";
-            svgElement.classList.remove("unfolding");
+            iElement.classList.remove("unfolding");
           }
         }, 200);
       });
@@ -167,7 +239,7 @@ document.addEventListener(
 
     function changeLinkState() {
       let index = sections.length;
-      while (--index && window.scrollY < sections[index].offsetTop) {}
+      while (--index && window.scrollY < sections[index].offsetTop) { }
 
       links.forEach((link) => link.classList.remove("tocActive"));
       links[index].classList.add("tocActive");
@@ -227,7 +299,7 @@ document.addEventListener(
       var copyButton = document.createElement("button");
       copyButton.className = "copyButtonStyle";
       copyButton.textContent = "Copy";
-      copyButton.setAttribute("title", "复制");
+      copyButton.setAttribute("title", "Copy");
 
       var codeElement = container.firstElementChild;
       copyButton.addEventListener("click", function () {
@@ -269,7 +341,7 @@ document.addEventListener(
 document.addEventListener(
   "DOMContentLoaded",
   () => {
-    //字数统计
+    // Word count
     const content = document.getElementById("content");
     if (!content) {
       return;
@@ -343,36 +415,6 @@ document.addEventListener(
       ) {
         searchContainer.style.display = "none";
       }
-    });
-  },
-  false
-);
-
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
-    //音乐播放器
-    const playButtons = document.querySelectorAll(".playMusicButton");
-    // 为每个按钮添加点击事件
-    playButtons.forEach((button) => {
-      button.addEventListener("click", function () {
-        //用于判断是否是移动端
-        const toggleMenuButton = document.getElementById("toggleMenuButton");
-        var url = `//music.163.com/m/outchain/player?type=2&auto=1&height=32`;
-        if (getComputedStyle(toggleMenuButton).display === "none") {
-          url = `//music.163.com/outchain/player?type=2&auto=1&height=32`;
-        }
-        let oldPlayer = document.getElementById("musicPlayer");
-        if (oldPlayer != null) {
-          document.body.removeChild(oldPlayer);
-        }
-        const musicId = this.getAttribute("musicid");
-        var musicPlayer = document.createElement("div");
-        musicPlayer.id = "musicPlayer";
-
-        musicPlayer.innerHTML = `<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=298 height=52 src="${url}&id=${musicId}"></iframe>`;
-        document.body.appendChild(musicPlayer);
-      });
     });
   },
   false

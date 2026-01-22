@@ -272,10 +272,6 @@ a {
         bottom: 50px !important
     }
 
-    .platformStyle {
-        margin: 0 3px !important
-    }
-
     .cardContainerStyle {
         width: 50vw !important;
         position: unset !important;
@@ -922,7 +918,7 @@ ul#toc {
 }
 
 .platformStyle {
-    margin: 0 10px 0 10px
+    margin: 0 2px 0 2px
 }
 
 .bloggerInfoCardStyle {
