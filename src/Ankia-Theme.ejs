@@ -69,15 +69,7 @@
   <meta name="google-site-verification" content="iM00A0XoRL2tuRTmctSudVduNCAyIe0hHXGc7l5BYBo" />
   <script defer type="text/javascript" src="<%= note.getRelation('umamiJS').value %>" data-website-id="7c04013f-0910-4a82-ac72-a14579ba51a7"></script>
 
-  <% /* Default Trilium parameter setup */ %>
-  <%
-  if (note.hasRelation("shareFavicon")) { %>
-    <link rel="shortcut icon" href="<%= note.getRelation('shareFavicon').value %>"><%
-  } else { %>
-    <link rel="shortcut icon" href="../favicon.ico">
-  <%
-  } %>
-
+  <link rel="shortcut icon" href="<%= faviconUrl %>">
   <%
   for (const url of cssToLoad) { %>
     <link href="<%= url %>" rel="stylesheet"><%
@@ -128,7 +120,7 @@ content = content.replaceAll(headingRe, (...match) => {
   </div>
   <div id="navigationBar" class="scroll-hide">
     <div id="siteTitle">
-      <!-- <img src="api/images/<%= subRoot.note.getRelation("shareFavicon").value %>/logo.svg" alt="Logo" /> -->
+      <!-- <img src="<%= faviconUrl %>" alt="Logo" /> -->
       <a href="./" title="Back to Home"><%= siteName %></a>
     </div>
     <div id="navigationItems">
