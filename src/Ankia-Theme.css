@@ -644,6 +644,7 @@ div#content {
 }
 
 .ck-content pre code {
+    text-align: left;
     white-space: pre-wrap;
     padding: 0 !important
 }
